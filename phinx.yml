@@ -1,0 +1,34 @@
+paths:
+    migrations: %%PHINX_CONFIG_DIR%%/migrations
+
+environments:
+    default_migration_table: phinxlog
+    default_database: development
+    production:
+        adapter: mysql
+        host: localhost
+        name: verde_mapacervejeiro
+        user: verde_mapa
+        pass: 'Mapa2015'
+        port: 3306
+        charset: utf8
+
+    development:
+#        adapter: sqlite
+#        name: tasca
+        adapter: mysql
+        host: localhost
+        name: tasca
+        user: root
+        pass: 'root'
+        port: 3306
+        charset: utf8
+
+    testing:
+        adapter: mysql
+        host: localhost
+        name: testing_db
+        user: root
+        pass: ''
+        port: 3306
+        charset: utf8
