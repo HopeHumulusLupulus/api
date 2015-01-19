@@ -1,0 +1,26 @@
+<?php
+
+namespace App;
+
+use Silex\Application;
+
+class ServicesLoader
+{
+    /**
+     * @var Application
+     */
+    protected $app;
+
+    public function __construct(Application $app)
+    {
+        $this->app = $app;
+    }
+
+    public function bindServicesIntoContainer()
+    {
+        $this->app['pins.service'] = $this->app->share(function () {
+            return new Services\PinsService($this->app["db"]);
+        });
+    }
+}
+

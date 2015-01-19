@@ -1,0 +1,7 @@
+vendor
+.DS_Store
+app/logs/*.log
+*~
+.idea
+*.sqlite
+.project
