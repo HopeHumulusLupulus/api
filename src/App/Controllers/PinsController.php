@@ -4,11 +4,15 @@ namespace App\Controllers;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Services\PinsService;
 
 
 class PinsController
 {
 
+    /**
+     * @var PinsService
+     */
     protected $pinsService;
 
     public function __construct($service)
@@ -16,9 +20,14 @@ class PinsController
         $this->pinsService = $service;
     }
 
-    public function getAll()
+    public function getAll(Request $request)
     {
-        return new JsonResponse($this->pinsService->getAll());
+        return new JsonResponse($this->pinsService->getAll(
+            $request->get('minLat'),
+            $request->get('minLng'),
+            $request->get('maxLat'),
+            $request->get('maxLng')
+        ));
     }
 
     public function save(Request $request)

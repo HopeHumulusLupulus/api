@@ -3,11 +3,12 @@
 namespace App\Services;
 
 use Silex\Provider\DoctrineServiceProvider;
+use Doctrine\DBAL\Driver\Connection;
 class BaseService
 {
 
     /**
-     * @var DoctrineServiceProvider
+     * @var Connection
      */
     protected $db;
 
