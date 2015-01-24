@@ -30,10 +30,10 @@ class RoutesLoader
         $api = $this->app["controllers_factory"];
 
         $api->get('/pins', "pins.controller:getAll");
-        $api->get('/pins/{id}', "pins.controller:getOne");
-        $api->post('/pins', "pins.controller:save");
-        $api->put('/pins/{id}', "pins.controller:update");
-        $api->delete('/pins/{id}', "pins.controller:delete");
+        $api->get('/pin/{id}', "pins.controller:getOne");
+        $api->post('/pin', "pins.controller:save");
+        $api->put('/pin/{id}', "pins.controller:update");
+        $api->delete('/pin/{id}', "pins.controller:delete");
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }
