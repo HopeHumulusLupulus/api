@@ -97,10 +97,12 @@ SELECT pin.id AS id_pin,
             );
             if($stmt->execute()) {
                 $row = $stmt->fetch();
-                $pin['phones'][] = array(
-                    'number' => $row['number'],
-                    'type'   => $row['type']
-                );
+                if($row) {
+                    $pin['phones'][] = array(
+                        'number' => $row['number'],
+                        'type'   => $row['type']
+                    );
+                }
             }
         }
         return $pin;
