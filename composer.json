@@ -19,7 +19,8 @@
 		"silex/silex" : "1.2.*dev",
 		"monolog/monolog" : "1.12.*@dev",
 		"doctrine/dbal" : "2.5.1",
-		"robmorgan/phinx" : "dev-master"
+		"robmorgan/phinx" : "dev-master",
+		"nesbot/carbon": "dev-master"
 	},
 	"require-dev" : {
 		"phpunit/phpunit" : "4.6.*@dev",
