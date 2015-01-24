@@ -30,28 +30,32 @@ class PinsController
         ));
     }
 
+    public function getOne(Request $request)
+    {
+        return new JsonResponse($this->pinsService->getOne(
+            $request->get('id')
+        ));
+    }
+
     public function save(Request $request)
     {
-        $note = $this->getDataFromRequest($request);
-        return new JsonResponse(array("id" => $this->pinsService->save($note)));
+        return new JsonResponse(array("id" => $this->pinsService->save(
+            json_decode($request->getContent(), true)
+        )));
     }
 
     public function update($id, Request $request)
     {
-        $note = $this->getDataFromRequest($request);
-        $this->pinsService->update($id, $note);
-        return new JsonResponse($note);
+        return new JsonResponse(array(
+            "id" => $this->pinsService->update(
+                $request->get('id'),
+                json_decode($request->getContent(), true)
+            )
+        ));
     }
 
     public function delete($id)
     {
         return new JsonResponse($this->pinsService->delete($id));
-    }
-
-    public function getDataFromRequest(Request $request)
-    {
-        return $note = array(
-            "note" => $request->request->get("note")
-        );
     }
 }

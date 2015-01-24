@@ -55,7 +55,11 @@ class First extends AbstractMigration
             ->addColumn('lng', 'biginteger')
             ->addColumn('address', 'string', array('limit' => 150, 'null' => true))
             ->addColumn('link', 'string', array('limit' => 150, 'null' => true))
+            ->addColumn('enabled', 'datetime', array('null' => true))
             ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
+            ->addColumn('created_by', 'string', array('limit' => 150, 'null' => true))
+            ->addColumn('enabled_by', 'string', array('limit' => 150, 'null' => true))
+            ->addColumn('deleted', 'datetime', array('null' => true))
             ->addForeignKey('id_district', $district, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $pin->save();
 
@@ -489,6 +493,10 @@ INSERT INTO pin (id_district,name,lat,lng,address,link) VALUES (101,'Hops Bar',-
 INSERT INTO pin (id_district,name,lat,lng,address,link) VALUES (87,'Belgian Dash',-166928930,-492640116,'Rua 91, 184.','http://www.cervejasespeciais.com.br/site/');
 INSERT INTO pin (id_district,name,lat,lng,address,link) VALUES (86,'Rash Bier',-166928930,-492640116,'Avenida T-003.','');
 INSERT INTO pin (id_district,name,lat,lng,address,link) VALUES (86,'Olut',-166928930,-492640116,'Avenida T-4, 466.','http://www.olut.com.br/');
+
+UPDATE pin SET enabled = created;
+UPDATE pin SET enabled_by = 'vitor.mattos@gmail.com';
+UPDATE pin SET created_by = 'vitor.mattos@gmail.com';
 
 INSERT INTO phone_type (type) VALUES ('Empresarial');
 INSERT INTO phone_type (type) VALUES ('Celular');
