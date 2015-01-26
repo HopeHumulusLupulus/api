@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Doctrine\DBAL\Connection;
+use Cocur\Slugify\Slugify;
 class PinsService extends BaseService
 {
 
@@ -56,9 +57,10 @@ SELECT pin.id AS id_pin,
                     );
                 }
             }
+            $lugify = new Slugify();
             foreach($return as $key => $value) {
                 unset($return[$key]);
-                $return[$value['name'].'_'.$value['id']] = $value;
+                $return[$lugify->slugify($value['name']).'_'.$value['id']] = $value;
             }
         }
         return $return;
