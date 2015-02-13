@@ -14,7 +14,11 @@ use Carbon\Carbon;
 
 date_default_timezone_set('America/Sao_Paulo');
 
-define("ROOT_PATH", __DIR__ . "/..");
+define('ROOT_PATH', __DIR__ . "/..");
+
+$env = getenv('APP_ENV') ?: 'prod';
+
+require ROOT_PATH . '/resources/config/'.$env.'.php';
 
 //handling CORS preflight request
 $app->before(function (Request $request) {
@@ -44,16 +48,7 @@ $app->before(function (Request $request) {
 
 $app->register(new ServiceControllerServiceProvider());
 
-$app->register(new DoctrineServiceProvider(), array(
-    "db.options" => array(
-        'driver'   => 'pdo_mysql',
-        'dbname'   => 'tasca',
-        'host'     => 'localhost',
-        'user'     => 'root',
-        'password' => 'root',
-        'charset' => 'UTF8'
-    ),
-));
+$app->register(new DoctrineServiceProvider(), array("db.options" => $app['db']));
 
 $app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . "/storage/cache",));
 

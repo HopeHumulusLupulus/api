@@ -16,12 +16,12 @@ environments:
     development:
 #        adapter: sqlite
 #        name: tasca
-        adapter: mysql
+        adapter: pgsql
         host: localhost
         name: tasca
-        user: root
-        pass: 'root'
-        port: 3306
+        user: postgres
+        pass: 'postgres'
+        port: 5432
         charset: utf8
 
     testing:
