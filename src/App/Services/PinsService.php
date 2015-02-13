@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Doctrine\DBAL\Connection;
-use Cocur\Slugify\Slugify;
 class PinsService extends BaseService
 {
 
@@ -32,8 +31,10 @@ SELECT p.id, co.name AS country, s.name AS state, c.name AS city, d.name AS dist
         if($stmt->execute()) {
             $pin_ids = array();
             foreach($stmt->fetchAll() as $row) {
+                $row['lat'] = (float)$row['lat'];
+                $row['lng'] = (float)$row['lng'];
                 $pin_ids[] = $row['id'];
-                $return[$row['id']] = $row;
+                $return['B_'.$row['id']] = $row;
             }
             $stmt = $this->db->executeQuery("
 SELECT pin.id AS id_pin,
@@ -51,16 +52,11 @@ SELECT pin.id AS id_pin,
             );
             if($stmt->execute()) {
                 while($row = $stmt->fetch()) {
-                    $return[$row['id_pin']]['phones'][] = array(
+                    $return['B_'.$row['id_pin']]['phones'][] = array(
                         'number' => $row['number'],
                         'type'   => $row['type']
                     );
                 }
-            }
-            $lugify = new Slugify();
-            foreach($return as $key => $value) {
-                unset($return[$key]);
-                $return['B_'.$value['id']] = $value;
             }
         }
         return $return;
@@ -80,9 +76,10 @@ SELECT p.id, co.name AS country, s.name AS state, c.name AS city, d.name AS dist
             );
         $stmt->bindValue(':id', $id);
 
-        $return = array();
         if($stmt->execute()) {
             $pin = $stmt->fetch();
+            $pin['lat'] = (float)$pin['lat'];
+            $pin['lng'] = (float)$pin['lng'];
             $stmt = $this->db->executeQuery("
 SELECT pin.id AS id_pin,
        p.number,
