@@ -60,7 +60,7 @@ SELECT pin.id AS id_pin,
             $lugify = new Slugify();
             foreach($return as $key => $value) {
                 unset($return[$key]);
-                $return[$lugify->slugify($value['name']).'_'.$value['id']] = $value;
+                $return['B_'.$value['id']] = $value;
             }
         }
         return $return;
