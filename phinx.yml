@@ -6,10 +6,10 @@ environments:
     default_database: development
     production:
         adapter: mysql
-        host: localhost
-        name: verde_mapacervejeiro
-        user: verde_mapa
-        pass: 'Mapa2015'
+        host: lupulocalizador.c3j5s80duz5k.sa-east-1.rds.amazonaws.com
+        name: lupulocalizador
+        user: lupulocalizador
+        pass: 'T45c4_2015'
         port: 3306
         charset: utf8
 
