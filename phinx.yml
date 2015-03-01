@@ -5,24 +5,22 @@ environments:
     default_migration_table: phinxlog
     default_database: development
     production:
-        adapter: pgsql
-        host: lupulocalizador.c3j5s80duz5k.sa-east-1.rds.amazonaws.com
-        name: lupulocalizador
-        user: lupulocalizador
-        pass: 'T45c4_2015'
-        port: 3306
-        charset: utf8
+        adapter: %%PHINX_ADAPTER%%
+        host: %%PHINX_HOST%%
+        name: %%PHINX_NAME%%
+        user: %%PHINX_USER%%
+        pass: %%PHINX_PASS%%
+        port: %%PHINX_PORT%%
+        charset: %%PHINX_CHARSET%%
 
     development:
-#        adapter: sqlite
-#        name: tasca
-        adapter: pgsql
-        host: localhost
-        name: tasca
-        user: postgres
-        pass: 'postgres'
-        port: 5432
-        charset: utf8
+        adapter: %%PHINX_ADAPTER%%
+        host: %%PHINX_HOST%%
+        name: %%PHINX_NAME%%
+        user: %%PHINX_USER%%
+        pass: %%PHINX_PASS%%
+        port: %%PHINX_PORT%%
+        charset: %%PHINX_CHARSET%%
 
     testing:
         adapter: mysql

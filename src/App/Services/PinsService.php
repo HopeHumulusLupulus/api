@@ -107,14 +107,98 @@ SELECT pin.id AS id_pin,
         return $pin;
     }
 
-    function save($pin)
+    public function getAddressData($lat, $lng) {
+        $url = 'http://maps.googleapis.com/maps/api/geocode/json?'.
+            'latlng='.$lat.','.$lng.'&sensor=false&language=pt';
+        $response = \file_get_contents($url);
+        if($response) {
+            $google = json_decode($response, true);
+            if(\strtoupper($google['status']) == 'OK') {
+                if (isset($google['results'][0]['address_components'])) {
+                    foreach($google['results'][0]['address_components'] as $component) {
+                        $types = is_array($component['types']) ? $component['types'] : array($componenxt['types']);
+                        if (in_array('locality', $types) || in_array('administrative_area_level_2', $types)) {
+                            $address['city'] = $component['long_name'];
+                        } elseif (in_array('administrative_area_level_1', $types)) {
+                            $address['state'] = $component['long_name'];
+                        } elseif (in_array('country', $types)) {
+                            $address['country'] = $component['long_name'];
+                        } elseif (in_array('neighborhood', $types)) {
+                            $address['district'] = $component['long_name'];
+                        }
+                    }
+                    $address['full'] = $google['results'][0]['formatted_address'];
+                    return $address;
+                }
+            }
+        }
+    }
+
+    public function save($pin)
     {
         if(array_key_exists('phones', $pin)){
             $phones = $pin['phones'];
             unset($pin['phones']);
         }
+        if(!isset($pin['id_district']) || !$pin['id_district']) {
+            $address = $this->getAddressData($pin['lat'], $pin['lng']);
+            if(!$pin['address']) {
+                $pin['address'] = $address['full'];
+            }
+            # Country
+            $this->country = new CountryService($this->db);
+            $country = $this->country->getCountry(array(
+                'name' => $address['country']
+            ));
+            if(!$country) {
+                $country = array(
+                    'name' => $address['country']
+                );
+                $country['id'] = $this->country->save($country);
+            }
+            # State
+            $this->state = new StateService($this->db);
+            $state = $this->state->getState(array(
+                'name' => $address['state'],
+                'id_country' => $country['id']
+            ));
+            if(!$state) {
+                $state = array(
+                    'name' => $address['state'],
+                    'id_country' => $country['id']
+                );
+                $state['id'] = $this->state->save($state);
+            }
+            # City
+            $this->city = new CityService($this->db);
+            $city = $this->city->getCity(array(
+                'name' => $address['city'],
+                'id_state' => $state['id']
+            ));
+            if(!$city) {
+                $city = array(
+                    'name' => $address['city'],
+                    'id_state' => $state['id']
+                );
+                $city['id'] = $this->city->save($city);
+            }
+            # District
+            $this->district = new DistrictService($this->db);
+            $district = $this->district->getDistrict(array(
+                'name' => $address['district'],
+                'id_city' => $city['id']
+            ));
+            if(!$district) {
+                $district = array(
+                    'name' => $address['district'],
+                    'id_city' => $city['id']
+                );
+                $district['id'] = $this->district->save($district);
+            }
+            $pin['id_district'] = $district['id'];
+        }
         $this->db->insert("pin", $pin);
-        $id = $this->db->lastInsertId();
+        $id = $this->db->lastInsertId('pin_id_seq');
         foreach($phones as $phone) {
             $phone['entity'] = 'pin';
             $phone['id_entity'] = $id;
@@ -123,7 +207,7 @@ SELECT pin.id AS id_pin,
         return $id;
     }
 
-    function update($id, $pin)
+    public function update($id, $pin)
     {
         if(array_key_exists('phones', $pin)){
             $phones = $pin['phones'];
@@ -151,7 +235,7 @@ SELECT pin.id AS id_pin,
         return $id;
     }
 
-    function delete($id)
+    public function delete($id)
     {
         return $this->db->update(
             'pin',
