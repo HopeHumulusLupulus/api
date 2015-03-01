@@ -114,6 +114,7 @@ CREATE TABLE importacao (
 */
 
 INSERT INTO country (name) VALUES('Brasil');
+SELECT setval('country_id_seq', (SELECT MAX(id) FROM country));
 
 /*
 INSERT INTO state(name, id_country)
@@ -151,6 +152,7 @@ INSERT INTO state (id,name,id_country) VALUES (23,'Roraíma',1);
 INSERT INTO state (id,name,id_country) VALUES (24,'Santa Catarina',1);
 INSERT INTO state (id,name,id_country) VALUES (25,'São Paulo',1);
 INSERT INTO state (id,name,id_country) VALUES (26,'Sergipe',1);
+SELECT setval('state_id_seq', (SELECT MAX(id) FROM state));
 
 /*
 INSERT INTO city(name, id_state)
@@ -240,6 +242,7 @@ INSERT INTO city (id,name,id_state) VALUES (74,'São Paulo',25);
 INSERT INTO city (id,name,id_state) VALUES (75,'Sorocaba',25);
 INSERT INTO city (id,name,id_state) VALUES (76,'Votorantim',25);
 INSERT INTO city (id,name,id_state) VALUES (77,'Aracajú',26);
+SELECT setval('city_id_seq', (SELECT MAX(id) FROM city));
 
 /*
 INSERT INTO district(name, id_city)
@@ -491,6 +494,7 @@ INSERT INTO district (id,name,id_city) VALUES (236,'Centro',76);
 INSERT INTO district (id,name,id_city) VALUES (237,'Jardim Elizabeth',76);
 INSERT INTO district (id,name,id_city) VALUES (238,'Vossoroca',76);
 INSERT INTO district (id,name,id_city) VALUES (239,'Atalaia',77);
+SELECT setval('district_id_seq', (SELECT MAX(id) FROM district));
 
 /*
 INSERT INTO pin (id_district, name, lat, lng, address, link)
@@ -857,6 +861,7 @@ INSERT INTO pin (id_district,name,lat,lng,address,link) VALUES (236,'The Square 
 INSERT INTO pin (id_district,name,lat,lng,address,link) VALUES (237,'Cervejaria Baden Baden',-22.718983,-45.567295,'Rua Dr. Djalma Forjaz, 93','www.obadenbaden.com.br');
 INSERT INTO pin (id_district,name,lat,lng,address,link) VALUES (238,'Mr. Beer (Iguatemi Sorocaba)',-22.951702,-43.37692,'Av. Gisele Constantino, 1800. Loja 124B.','http://www.mrbeercervejas.com.br/');
 INSERT INTO pin (id_district,name,lat,lng,address,link) VALUES (239,'Calles Bar de Tapas',-10.990155,-37.049873,'Avenida Santos Dumont, 188.','');
+SELECT setval('pin_id_seq', (SELECT MAX(id) FROM pin));
 
 UPDATE pin SET enabled = created;
 UPDATE pin SET enabled_by = 'vitor.mattos@gmail.com';
@@ -1181,6 +1186,7 @@ INSERT INTO phone (id_phone_type,number,entity,id_entity) VALUES (1,'6239321454'
 INSERT INTO phone (id_phone_type,number,entity,id_entity) VALUES (1,'6232857541','pin',349);
 INSERT INTO phone (id_phone_type,number,entity,id_entity) VALUES (1,'6232249033','pin',350);
 INSERT INTO phone (id_phone_type,number,entity,id_entity) VALUES (1,'6239261313','pin',351);
+SELECT setval('phone_id_seq', (SELECT MAX(id) FROM phone));
 ");
     }
 
