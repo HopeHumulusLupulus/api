@@ -39,11 +39,27 @@ class UserService extends BaseService
         }
     }
 
-    public function save($pin)
+    public function save($user)
     {
+        if(array_key_exists('phone', $user)){
+            if(!\is_array($user['phone'])) {
+                $phones[] = array(
+                    'number' => $user['phone']
+                );
+                unset($user['phone']);
+            }
+        }
+        $this->db->insert("user_account", $user);
+        $id = $this->db->lastInsertId('user_account_id_seq');
+        if($phones){
+            foreach($phones as $phone) {
+                $phone['id_user_account'] = $id;
+                $this->db->insert("phone_pin", $phone);
+            }
+        }
     }
 
-    public function update($id, $pin)
+    public function update($id, $user)
     {
     }
 

@@ -45,7 +45,7 @@ SELECT pin.id AS id_pin,
         END AS type
   FROM phone_pin p
   JOIN phone_type pt ON pt.id = p.id_phone_type
-  JOIN pin ON pin.id = p.id_entity AND p.entity = 'pin'
+  JOIN pin ON pin.id = p.id_pin
  WHERE pin.id IN (?)",
                 array($pin_ids),
                 array(Connection::PARAM_INT_ARRAY)
@@ -200,8 +200,7 @@ SELECT pin.id AS id_pin,
         $this->db->insert("pin", $pin);
         $id = $this->db->lastInsertId('pin_id_seq');
         foreach($phones as $phone) {
-            $phone['entity'] = 'pin';
-            $phone['id_entity'] = $id;
+            $phone['id_pin'] = $id;
             $this->db->insert("phone_pin", $phone);
         }
         return $id;

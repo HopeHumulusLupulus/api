@@ -89,7 +89,7 @@ class First extends AbstractMigration
         $user_account->save();
 
         $phone_user_account = $this->table('phone_user_account')
-            ->addColumn('id_phone_type', 'integer')
+            ->addColumn('id_phone_type', 'integer', array('default' => 2))
             ->addColumn('number', 'string', array('limit' => 15))
             ->addColumn('id_user_account', 'integer')
             ->addColumn('other_type', 'string', array('limit' => 40, 'null' => true))
