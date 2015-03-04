@@ -23,17 +23,36 @@ class RoutesLoader
         $this->app['pins.controller'] = $this->app->share(function () {
             return new Controllers\PinsController($this->app['pins.service']);
         });
+        $this->app['user.controller'] = $this->app->share(function () {
+            return new Controllers\UserController($this->app['user.service']);
+        });
     }
 
     public function bindRoutesToControllers()
     {
         $api = $this->app["controllers_factory"];
 
+        # pins
         $api->get('/pins', "pins.controller:getAll");
         $api->get('/pin/{id}', "pins.controller:getOne");
         $api->post('/pin', "pins.controller:save");
         $api->put('/pin/{id}', "pins.controller:update");
         $api->delete('/pin/{id}', "pins.controller:delete");
+        # user
+        $api->get('/user/{args}', "user.controller:get")
+            ->assert('args', '.*')
+            ->convert('args', function ($args) {
+                $args = explode('/', $args);
+                $return = array();
+                foreach ($args as $value) {
+                    $value = explode(':', $value);
+                    $return[$value[0]] = $value[1];
+                }
+                return $return;
+            });
+        $api->post('/user', "user.controller:save");
+        $api->put('/user/{id}', "user.controller:update");
+        $api->delete('/user/{id}', "user.controller:delete");
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }

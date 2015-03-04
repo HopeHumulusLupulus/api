@@ -43,7 +43,7 @@ SELECT pin.id AS id_pin,
             WHEN pt.id = 3 AND p.other_type IS NOT NULL THEN p.other_type
             ELSE pt.type
         END AS type
-  FROM phone p
+  FROM phone_pin p
   JOIN phone_type pt ON pt.id = p.id_phone_type
   JOIN pin ON pin.id = p.id_entity AND p.entity = 'pin'
  WHERE pin.id IN (?)",
@@ -87,7 +87,7 @@ SELECT pin.id AS id_pin,
             WHEN pt.id = 3 AND p.other_type IS NOT NULL THEN p.other_type
             ELSE pt.type
         END AS type
-  FROM phone p
+  FROM phone_pin p
   JOIN phone_type pt ON pt.id = p.id_phone_type
   JOIN pin ON pin.id = p.id_entity AND p.entity = 'pin'
  WHERE pin.id IN (?)",
@@ -202,7 +202,7 @@ SELECT pin.id AS id_pin,
         foreach($phones as $phone) {
             $phone['entity'] = 'pin';
             $phone['id_entity'] = $id;
-            $this->db->insert("phone", $phone);
+            $this->db->insert("phone_pin", $phone);
         }
         return $id;
     }
@@ -212,14 +212,14 @@ SELECT pin.id AS id_pin,
         if(array_key_exists('phones', $pin)){
             $phones = $pin['phones'];
             unset($pin['phones']);
-            $this->db->delete("phone", array(
+            $this->db->delete("phone_pin", array(
                 'id_entity' => $id,
                 'entity' => 'pin'
             ));
             foreach($phones as $phone) {
                 $phone['entity'] = 'pin';
                 $phone['id_entity'] = $id;
-                $this->db->insert("phone", $phone);
+                $this->db->insert("phone_pin", $phone);
             }
         }
         if($pin['enabled_by']) {

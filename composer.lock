@@ -548,12 +548,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "f05ed3a44a8e40533d4cf60a0669db6b1887b499"
+                "reference": "1b34cd4d88b2c10e44cc0aa3001e923b737bc5de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/f05ed3a44a8e40533d4cf60a0669db6b1887b499",
-                "reference": "f05ed3a44a8e40533d4cf60a0669db6b1887b499",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/1b34cd4d88b2c10e44cc0aa3001e923b737bc5de",
+                "reference": "1b34cd4d88b2c10e44cc0aa3001e923b737bc5de",
                 "shasum": ""
             },
             "require": {
@@ -612,7 +612,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2015-02-11 14:20:33"
+            "time": "2015-03-01 15:07:20"
         },
         {
             "name": "nesbot/carbon",
@@ -620,12 +620,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "2d200201fa7951ff5d144723ab049b50b4e4ed07"
+                "reference": "40bdb49d907083d6d222ec15075813f05c299b28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/2d200201fa7951ff5d144723ab049b50b4e4ed07",
-                "reference": "2d200201fa7951ff5d144723ab049b50b4e4ed07",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/40bdb49d907083d6d222ec15075813f05c299b28",
+                "reference": "40bdb49d907083d6d222ec15075813f05c299b28",
                 "shasum": ""
             },
             "require": {
@@ -652,13 +652,13 @@
                 }
             ],
             "description": "A simple API extension for DateTime.",
-            "homepage": "https://github.com/briannesbitt/Carbon",
+            "homepage": "http://carbon.nesbot.com",
             "keywords": [
                 "date",
                 "datetime",
                 "time"
             ],
-            "time": "2015-02-11 04:10:30"
+            "time": "2015-02-23 03:21:43"
         },
         {
             "name": "pimple/pimple",
@@ -750,12 +750,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/robmorgan/phinx.git",
-                "reference": "cd2009b71e16ca8363e5e95ee19a991ae4cfcb5a"
+                "reference": "f6be670d9f73b463539f52bf5389f6e412b5049b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/robmorgan/phinx/zipball/cd2009b71e16ca8363e5e95ee19a991ae4cfcb5a",
-                "reference": "cd2009b71e16ca8363e5e95ee19a991ae4cfcb5a",
+                "url": "https://api.github.com/repos/robmorgan/phinx/zipball/f6be670d9f73b463539f52bf5389f6e412b5049b",
+                "reference": "f6be670d9f73b463539f52bf5389f6e412b5049b",
                 "shasum": ""
             },
             "require": {
@@ -804,7 +804,7 @@
                 "migrations",
                 "phinx"
             ],
-            "time": "2015-02-08 03:47:12"
+            "time": "2015-02-23 16:39:42"
         },
         {
             "name": "silex/silex",
@@ -812,12 +812,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silexphp/Silex.git",
-                "reference": "aa68047e0e9d6a9d5a3af0e4e83e1957a7d28a68"
+                "reference": "a9dbda034ff5c5b3e2a2faaa312192573f03544d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silexphp/Silex/zipball/aa68047e0e9d6a9d5a3af0e4e83e1957a7d28a68",
-                "reference": "aa68047e0e9d6a9d5a3af0e4e83e1957a7d28a68",
+                "url": "https://api.github.com/repos/silexphp/Silex/zipball/a9dbda034ff5c5b3e2a2faaa312192573f03544d",
+                "reference": "a9dbda034ff5c5b3e2a2faaa312192573f03544d",
                 "shasum": ""
             },
             "require": {
@@ -886,7 +886,7 @@
             "keywords": [
                 "microframework"
             ],
-            "time": "2015-01-20 18:42:46"
+            "time": "2015-02-27 14:58:37"
         },
         {
             "name": "symfony/config",
@@ -1465,12 +1465,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/padraic/mockery.git",
-                "reference": "06de684e349582cad2e1b76aee79dc4018bd0a89"
+                "reference": "ef3ca8f5bbfd720e4f970526a1e7493005ebf41f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/padraic/mockery/zipball/06de684e349582cad2e1b76aee79dc4018bd0a89",
-                "reference": "06de684e349582cad2e1b76aee79dc4018bd0a89",
+                "url": "https://api.github.com/repos/padraic/mockery/zipball/ef3ca8f5bbfd720e4f970526a1e7493005ebf41f",
+                "reference": "ef3ca8f5bbfd720e4f970526a1e7493005ebf41f",
                 "shasum": ""
             },
             "require": {
@@ -1479,8 +1479,7 @@
             },
             "require-dev": {
                 "hamcrest/hamcrest-php": "~1.1",
-                "phpunit/phpunit": "~4.0",
-                "satooshi/php-coveralls": "~0.7@dev"
+                "phpunit/phpunit": "~4.0"
             },
             "type": "library",
             "extra": {
@@ -1523,7 +1522,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2015-02-13 10:36:42"
+            "time": "2015-02-27 21:38:21"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
