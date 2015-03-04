@@ -21,6 +21,9 @@ class ServicesLoader
         $this->app['pins.service'] = $this->app->share(function () {
             return new Services\PinsService($this->app["db"]);
         });
+        $this->app['user.service'] = $this->app->share(function () {
+            return new Services\UserService($this->app["db"]);
+        });
     }
 }
 
