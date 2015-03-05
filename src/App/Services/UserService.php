@@ -31,7 +31,7 @@ class UserService extends BaseService
         }
         if($data) {
             $stmt = $this->db->prepare(
-                'SELECT '.implode(",\n", array_keys($data))."\n".
+                'SELECT ua.id AS code, ua.name, '.implode(",\n", array_keys($data))."\n".
                 "  FROM user_account ua\n".
                 implode("\n ", $join)."\n".
                 " WHERE ".implode("\n  AND ", $where)
@@ -47,33 +47,47 @@ class UserService extends BaseService
 
     public function save($user)
     {
+        # Phone
         $this->PhoneService = new PhoneService($this->db);
         if(array_key_exists('phone', $user)) {
             $user['phones'] = $user['phone'];
             unset($user['phone']);
         }
         if(array_key_exists('phones', $user)) {
-            if(!\is_array($user['phones'])) {
-                $user['phones'] = array(array(
-                    'number' => $user['phones']
-                ));
-            } else {
-                if(!is_array(\current($user['phones']))) {
-                    $user['phones'] = array($user['phones']);
-                }
-            }
             if($this->PhoneService->get($user['phones'])) {
                 return 'Phone already used';
             }
         }
+
+        #email
+        $this->EmailService = new EmailService($this->db);
+        if(array_key_exists('email', $user)) {
+            $user['emails'] = $user['email'];
+            unset($user['email']);
+        }
+        if(array_key_exists('emails', $user)) {
+            if($this->EmailService->get($user['emails'])) {
+                return 'Email already used';
+            }
+        }
+
+        # User Account
         $this->db->insert("user_account", array(
             'name' => $user['name']
         ));
         $id = $this->db->lastInsertId('user_account_id_seq');
+        # Phone
         if(array_key_exists('phones', $user)) {
             foreach($user['phones'] as $phone) {
                 $phone['id_user_account'] = $id;
                 $this->db->insert("phone_user_account", $phone);
+            }
+        }
+        # Email
+        if(array_key_exists('emails', $user)) {
+            foreach($user['emails'] as $email) {
+                $email['id_user_account'] = $id;
+                $this->db->insert("email_user_account", $email);
             }
         }
         return $id;

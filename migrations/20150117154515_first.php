@@ -103,7 +103,7 @@ class First extends AbstractMigration
         $email_type->save();
 
         $email_user_account = $this->table('email_user_account')
-            ->addColumn('id_email_type', 'integer')
+            ->addColumn('id_email_type', 'integer', array('default' => 2))
             ->addColumn('email', 'string', array('limit' => 100))
             ->addColumn('id_user_account', 'integer')
             ->addColumn('other_type', 'string', array('limit' => 40, 'null' => true))
@@ -933,6 +933,10 @@ UPDATE pin SET created_by = 'vitor.mattos@gmail.com';
 INSERT INTO phone_type (type) VALUES ('Empresarial');
 INSERT INTO phone_type (type) VALUES ('Celular');
 INSERT INTO phone_type (type) VALUES ('Outros');
+
+INSERT INTO email_type (type) VALUES ('Empresarial');
+INSERT INTO email_type (type) VALUES ('Particular');
+INSERT INTO email_type (type) VALUES ('Outros');
 
 /*
 INSERT INTO phone_pin(number, id_phone_type, id_pin)

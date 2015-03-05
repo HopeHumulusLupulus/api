@@ -5,8 +5,16 @@ namespace App\Services;
 use Doctrine\DBAL\Connection;
 class PhoneService extends BaseService
 {
-    public function get($phones) {
-        
+    public function get(&$phones) {
+        if(!\is_array($phones)) {
+            $phones = array(array(
+                'number' => $phones
+            ));
+        } else {
+            if(!is_array(\current($phones))) {
+                $phones = array($phones);
+            }
+        }
         $where = $data = array();
         $i = 0;
         foreach($phones as $phone) {
