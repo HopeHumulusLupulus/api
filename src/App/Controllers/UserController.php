@@ -28,9 +28,13 @@ class UserController
 
     public function save(Request $request)
     {
-        return new JsonResponse(array("id" => $this->userService->save(
+        if(\is_numeric($response = $this->userService->save(
             json_decode($request->getContent(), true)
-        )));
+        ))) {
+            return new JsonResponse(array("id" => $response));
+        } else {
+            return new Response($response, 403);
+        }
     }
 
     public function update($id, Request $request)

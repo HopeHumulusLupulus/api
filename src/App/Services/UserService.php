@@ -3,8 +3,14 @@
 namespace App\Services;
 
 use Doctrine\DBAL\Connection;
+use Symfony\Component\HttpFoundation\Response;
 class UserService extends BaseService
 {
+    /**
+     * 
+     * @var PhoneService
+     */
+    private $PhoneService;
 
     public function get($args)
     {
@@ -41,22 +47,36 @@ class UserService extends BaseService
 
     public function save($user)
     {
-        if(array_key_exists('phone', $user)){
-            if(!\is_array($user['phone'])) {
-                $phones[] = array(
-                    'number' => $user['phone']
-                );
-                unset($user['phone']);
+        $this->PhoneService = new PhoneService($this->db);
+        if(array_key_exists('phone', $user)) {
+            $user['phones'] = $user['phone'];
+            unset($user['phone']);
+        }
+        if(array_key_exists('phones', $user)) {
+            if(!\is_array($user['phones'])) {
+                $user['phones'] = array(array(
+                    'number' => $user['phones']
+                ));
+            } else {
+                if(!is_array(\current($user['phones']))) {
+                    $user['phones'] = array($user['phones']);
+                }
+            }
+            if($this->PhoneService->get($user['phones'])) {
+                return 'Phone already used';
             }
         }
-        $this->db->insert("user_account", $user);
+        $this->db->insert("user_account", array(
+            'name' => $user['name']
+        ));
         $id = $this->db->lastInsertId('user_account_id_seq');
-        if($phones){
-            foreach($phones as $phone) {
+        if(array_key_exists('phones', $user)) {
+            foreach($user['phones'] as $phone) {
                 $phone['id_user_account'] = $id;
-                $this->db->insert("phone_pin", $phone);
+                $this->db->insert("phone_user_account", $phone);
             }
         }
+        return $id;
     }
 
     public function update($id, $user)
