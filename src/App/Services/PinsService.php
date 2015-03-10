@@ -34,6 +34,7 @@ SELECT p.id, co.name AS country, s.name AS state, c.name AS city, d.name AS dist
                 $row['lat'] = (float)$row['lat'];
                 $row['lng'] = (float)$row['lng'];
                 $pin_ids[] = $row['id'];
+                $row['ranking'] = $this->getRanking($row['id']);
                 $return['B_'.$row['id']] = $row;
             }
             $stmt = $this->db->executeQuery("
@@ -89,11 +90,12 @@ SELECT pin.id AS id_pin,
         END AS type
   FROM phone_pin p
   JOIN phone_type pt ON pt.id = p.id_phone_type
-  JOIN pin ON pin.id = p.id_entity AND p.entity = 'pin'
+  JOIN pin ON pin.id = p.id_pin
  WHERE pin.id IN (?)",
                 array(array($pin['id'])),
                 array(Connection::PARAM_INT_ARRAY)
             );
+            $pin['ranking'] = $this->getRanking($pin['id']);
             if($stmt->execute()) {
                 $row = $stmt->fetch();
                 if($row) {
@@ -115,8 +117,9 @@ SELECT pin.id AS id_pin,
             $google = json_decode($response, true);
             if(\strtoupper($google['status']) == 'OK') {
                 if (isset($google['results'][0]['address_components'])) {
+                    $address = array();
                     foreach($google['results'][0]['address_components'] as $component) {
-                        $types = is_array($component['types']) ? $component['types'] : array($componenxt['types']);
+                        $types = is_array($component['types']) ? $component['types'] : array($component['types']);
                         if (in_array('locality', $types) || in_array('administrative_area_level_2', $types)) {
                             $address['city'] = $component['long_name'];
                         } elseif (in_array('administrative_area_level_1', $types)) {
@@ -243,4 +246,75 @@ SELECT pin.id AS id_pin,
         );
     }
 
+    public function saveRanking($id_pin, $id_user_account, $pin_ranking_code, $ranking)
+    {
+        $stmt = $this->db->prepare(
+            "SELECT prt.id AS id_pin_ranking_type,\n".
+            "       COUNT(pr.id) AS ranking\n".
+            "  FROM pin_ranking_type prt\n".
+            "  LEFT JOIN pin_ranking pr ON pr.id_pin_ranking_type = prt.id\n".
+            "   AND pr.id_pin = :id_pin\n".
+            "   AND pr.id_user_account = :id_user_account\n".
+            "   AND pr.last = 1\n".
+            " WHERE prt.code = :ranking_code\n\n".
+            " GROUP BY prt.id;"
+        );
+        $stmt->bindValue(':id_pin', $id_pin);
+        $stmt->bindValue(':ranking_code', $pin_ranking_code);
+        $stmt->bindValue(':id_user_account', $id_user_account);
+        $stmt->execute();
+        $old = $stmt->fetch();
+        if($old['ranking']) {
+            $ok = $this->db->update('pin_ranking',
+                array(
+                    'last' => 0
+                ),
+                array(
+                    'id_pin' => $id_pin,
+                    'id_pin_ranking_type' => $old['id_pin_ranking_type'],
+                    'id_user_account' => $id_user_account
+                )
+            );
+        }
+        $this->db->insert('pin_ranking', array(
+            'id_pin' => $id_pin,
+            'id_user_account' => $id_user_account,
+            'id_pin_ranking_type' => $old['id_pin_ranking_type'],
+            'ranking' => $ranking
+        ));
+        return $this->db->lastInsertId('pin_ranking_id_seq');
+    }
+    
+    private function getRanking($id_pin)
+    {
+        $stmt = $this->db->prepare("
+            SELECT prt.code,
+                   prt.type,
+                   SUM(pr.ranking)/COUNT(pr.ranking) AS ranking
+              FROM pin_ranking pr
+              JOIN pin_ranking_type prt ON prt.id = pr.id_pin_ranking_type
+             WHERE pr.id_pin = :id_pin
+               AND last = 1
+             GROUP BY prt.code,
+                      prt.type
+        ");
+        $stmt->bindValue(':id_pin', $id_pin);
+        $stmt->execute();
+        $return = array();
+        foreach($stmt->fetchAll() as $ranking) {
+            $return[$ranking['code']] = array(
+                'type'    => $ranking['type'],
+                'ranking' => $ranking['ranking']
+            );
+        }
+        return $return;
+    }
+    
+    public function saveCheckin($id_pin, $id_user_account)
+    {
+        $this->db->insert('pin_checkin', array(
+            'id_pin' => $id_pin,
+            'id_user_account' => $id_user_account
+        ));
+    }
 }
