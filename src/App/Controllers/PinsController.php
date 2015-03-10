@@ -58,4 +58,28 @@ class PinsController
     {
         return new JsonResponse($this->pinsService->delete($id));
     }
+
+    public function ranking($id, Request $request)
+    {
+        $post = json_decode($request->getContent(), true);
+        foreach($post['ranking'] as $ranking) {
+            $this->pinsService->saveRanking(
+                $id,
+                $post['user_code'],
+                $ranking['code'],
+                $ranking['ranking']
+            );
+        }
+        return new JsonResponse(true);
+    }
+
+    public function checkin($id, Request $request)
+    {
+        $post = json_decode($request->getContent(), true);
+        $this->pinsService->saveCheckin(
+            $id,
+            $post['user_code']
+        );
+        return new JsonResponse(true);
+    }
 }
