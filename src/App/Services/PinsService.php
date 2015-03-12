@@ -256,7 +256,7 @@ SELECT pin.id AS id_pin,
             "   AND pr.id_pin = :id_pin\n".
             "   AND pr.id_user_account = :id_user_account\n".
             "   AND pr.last = 1\n".
-            " WHERE prt.code = :ranking_code\n\n".
+            " WHERE prt.code = :ranking_code\n".
             " GROUP BY prt.id;"
         );
         $stmt->bindValue(':id_pin', $id_pin);
