@@ -21,7 +21,12 @@ $env = getenv('APP_ENV') ?: 'prod';
 require ROOT_PATH . '/resources/config/'.$env.'.php';
 
 //handling CORS preflight request
-$app->before(function (Request $request) {
+$app->before(function (Request $request, $app) {
+    $app['monolog']->addError('Request', array(
+        'headers' => $request->headers->all(),
+        'content' => $request->getContent(),
+        'uri' => $request->getUri()
+    ));
     if ($request->getMethod() === "OPTIONS") {
         $response = new Response();
         $response->headers->set("Access-Control-Allow-Origin","*");
