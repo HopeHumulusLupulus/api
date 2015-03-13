@@ -38,7 +38,7 @@ $app->before(function (Request $request, $app) {
 }, Application::EARLY_EVENT);
 
 //handling CORS respons with right headers
-$app->after(function (Request $request, Response $response) {
+$app->after(function (Request $request, Response $response, $app) {
     $app['monolog']->addError('Response', array(
         'headers' => $response->headers->all()
     ));
