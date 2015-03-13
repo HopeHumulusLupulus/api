@@ -39,6 +39,9 @@ $app->before(function (Request $request, $app) {
 
 //handling CORS respons with right headers
 $app->after(function (Request $request, Response $response) {
+    $app['monolog']->addError('Response', array(
+        'headers' => $response->headers->all()
+    ));
     if(!$response->headers->get('Access-Control-Allow-Origin')){
         $response->headers->set("Access-Control-Allow-Origin","*");
     }
