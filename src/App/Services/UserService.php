@@ -31,7 +31,7 @@ class UserService extends BaseService
         }
         if($data) {
             $stmt = $this->db->prepare(
-                'SELECT ua.id AS code, ua.name, '.implode(",\n", array_keys($data))."\n".
+                "SELECT ua.id AS code, ua.name\n".
                 "  FROM user_account ua\n".
                 implode("\n ", $join)."\n".
                 " WHERE ".implode("\n  AND ", $where)
@@ -40,33 +40,74 @@ class UserService extends BaseService
                 $stmt->bindValue($param, $value);
             }
             if($stmt->execute()) {
-                return $stmt->fetchAll();
+                $user = $stmt->fetch();
+                if($emails = $this->getEmailService()->get(array(
+                    'id_user_account' => $user['code']
+                ))) {
+                    foreach($emails as $email) {
+                        $user['email'][] = array(
+                            'email' => $email['email'],
+                            'type'  => $email['type']
+                        );
+                    }
+                }
+                if($phones = $this->getPhoneService()->get(array(
+                    'id_user_account' => $user['code']
+                ))) {
+                    foreach($phones as $phone) {
+                        $user['phone'][] = array(
+                            'number' => $phone['number'],
+                            'type'  => $phone['type']
+                        );
+                    }
+                }
+                return $user;
             }
         }
+    }
+
+    /**
+     * Return instance of PhoneService
+     * @return \App\Services\PhoneService
+     */
+    public function getPhoneService() {
+        if(!\is_object($this->PhoneService)) {
+            $this->PhoneService = new PhoneService($this->db);
+        }
+        return $this->PhoneService;
+    }
+
+    /**
+     * Return instance of EmailService
+     * @return \App\Services\EmailService
+     */
+    public function getEmailService() {
+        if(!\is_object($this->EmailService)) {
+            $this->EmailService = new EmailService($this->db);
+        }
+        return $this->EmailService;
     }
 
     public function save($user)
     {
         # Phone
-        $this->PhoneService = new PhoneService($this->db);
         if(array_key_exists('phone', $user)) {
             $user['phones'] = $user['phone'];
             unset($user['phone']);
         }
         if(array_key_exists('phones', $user)) {
-            if($this->PhoneService->get($user['phones'])) {
+            if($this->getPhoneService()->get($user['phones'])) {
                 return 'Phone already used';
             }
         }
 
         #email
-        $this->EmailService = new EmailService($this->db);
         if(array_key_exists('email', $user)) {
             $user['emails'] = $user['email'];
             unset($user['email']);
         }
         if(array_key_exists('emails', $user)) {
-            if($this->EmailService->get($user['emails'])) {
+            if($this->getEmailService()->get(array('emails' => $user['emails']))) {
                 return 'Email already used';
             }
         }

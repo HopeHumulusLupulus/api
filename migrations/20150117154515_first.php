@@ -99,7 +99,7 @@ class First extends AbstractMigration
         $phone_user_account->save();
 
         $email_type = $this->table('email_type')
-        ->addColumn('type', 'string', array('limit' => 15));
+            ->addColumn('type', 'string', array('limit' => 15));
         $email_type->save();
 
         $email_user_account = $this->table('email_user_account')
