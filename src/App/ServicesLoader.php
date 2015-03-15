@@ -24,6 +24,9 @@ class ServicesLoader
         $this->app['user.service'] = $this->app->share(function () {
             return new Services\UserService($this->app["db"]);
         });
+        $this->app['state.service'] = $this->app->share(function () {
+            return new Services\StateService($this->app["db"]);
+        });
     }
 }
 
