@@ -8,15 +8,6 @@ class PhoneService extends BaseService
     public function get($param) {
         $where = $data = array();
         if(\array_key_exists('phones', $param)) {
-            if(!\is_array($param['phones'])) {
-                $param['phones'] = array(array(
-                    'number' => $param['phones']
-                ));
-            } else {
-                if(!is_array(\current($param['phones']))) {
-                    $param['phones'] = array($param['phones']);
-                }
-            }
             $i = 0;
             foreach($param['phones'] as $phone) {
                 foreach($phone as $key => $value) {
