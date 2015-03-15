@@ -21,7 +21,10 @@ class RoutesLoader
     private function instantiateControllers()
     {
         $this->app['pins.controller'] = $this->app->share(function () {
-            return new Controllers\PinsController($this->app['pins.service']);
+            return new Controllers\PinsController(
+                $this->app['pins.service'],
+                $this->app['user.service']
+            );
         });
         $this->app['user.controller'] = $this->app->share(function () {
             return new Controllers\UserController($this->app['user.service']);
@@ -42,7 +45,7 @@ class RoutesLoader
         $api->put('/pin/{id}', "pins.controller:update");
         $api->delete('/pin/{id}', "pins.controller:delete");
         $api->post('/pin/ranking/{id}', "pins.controller:ranking");
-        $api->post('/pin/checkin/{id}', "pins.controller:checkin");
+        $api->post('/pin/checkin/{id_pin}', "pins.controller:checkin");
         # user
         $api->get('/user/{args}', "user.controller:get")
             ->assert('args', '.*')

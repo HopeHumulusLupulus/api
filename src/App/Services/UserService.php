@@ -27,6 +27,9 @@ class UserService extends BaseService
                     $data['number'] = $value;
                     $join[] = 'JOIN phone_user_account pua ON pua.id_user_account = ua.id';
                     break;
+                case 'id':
+                    $where[] = 'ua.id = :id';
+                    $data['id'] = $value;
             } 
         }
         if($data) {

@@ -325,6 +325,21 @@ SELECT pin.id AS id_pin,
         }
         return $return;
     }
+
+    public function getLastCheckin($id_pin, $id_user_account) {
+        $stmt = $this->db->prepare(
+            "SELECT *\n".
+            "  FROM pin_checkin\n".
+            " WHERE id_pin = :id_pin\n".
+            "   AND id_user_account = :id_user_account\n".
+            " ORDER BY created DESC\n".
+            " LIMIT 1;"
+        );
+        $stmt->bindValue(':id_pin', $id_pin);
+        $stmt->bindValue(':id_user_account', $id_user_account);
+        $stmt->execute();
+        return $stmt->fetch();
+    }
     
     public function saveCheckin($id_pin, $id_user_account)
     {
