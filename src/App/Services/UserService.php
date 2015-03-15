@@ -39,8 +39,7 @@ class UserService extends BaseService
             foreach($data as $param => $value) {
                 $stmt->bindValue($param, $value);
             }
-            if($stmt->execute()) {
-                $user = $stmt->fetch();
+            if($stmt->execute() && $user = $stmt->fetch()) {
                 if($emails = $this->getEmailService()->get(array(
                     'id_user_account' => $user['code']
                 ))) {
