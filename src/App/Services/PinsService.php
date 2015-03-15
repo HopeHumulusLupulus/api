@@ -8,19 +8,39 @@ class PinsService extends BaseService
 
     public function getAll($minLat, $minLng, $maxLat, $maxLng)
     {
-        $stmt = $this->db->prepare(
-            "
-SELECT p.id, co.name AS country, s.name AS state, c.name AS city, d.name AS district, p.name, p.lat, p.lng, p.address, p.link
+        $stmt = $this->db->prepare("
+SELECT p.id,
+       co.name AS country,
+       s.name AS state,
+       c.name AS city,
+       d.name AS district,
+       p.name,
+       p.lat,
+       p.lng,
+       p.address,
+       p.link,
+       COUNT(pc.id) AS checkins
   FROM pin p
   JOIN district d ON d.id = p.id_district
   JOIN city c ON c.id = d.id_city
   JOIN state s ON s.id = c.id_state
   JOIN country co ON co.id = s.id_country
+  LEFT JOIN pin_checkin pc ON pc.id_pin = p.id
  WHERE p.lat BETWEEN :minLat AND :maxLat
        AND p.lng BETWEEN :minLng AND :maxLng
        AND p.enabled IS NOT NULL
        AND p.deleted IS NULL
-  ORDER BY p.name"
+ GROUP BY p.id,
+          co.name,
+          s.name,
+          c.name,
+          d.name,
+          p.name,
+          p.lat,
+          p.lng,
+          p.address,
+          p.link
+ ORDER BY p.name"
             );
         $stmt->bindValue(':minLat', $minLat);
         $stmt->bindValue(':minLng', $minLng);
@@ -65,15 +85,35 @@ SELECT pin.id AS id_pin,
 
     public function getOne($id)
     {
-        $stmt = $this->db->prepare(
-            "
-SELECT p.id, co.name AS country, s.name AS state, c.name AS city, d.name AS district, p.name, p.lat, p.lng, p.address, p.link
+        $stmt = $this->db->prepare("
+SELECT p.id,
+       co.name AS country,
+       s.name AS state,
+       c.name AS city,
+       d.name AS district,
+       p.name,
+       p.lat,
+       p.lng,
+       p.address,
+       p.link,
+       COUNT(pc.id) AS checkins
   FROM pin p
   JOIN district d ON d.id = p.id_district
   JOIN city c ON c.id = d.id_city
   JOIN state s ON s.id = c.id_state
   JOIN country co ON co.id = s.id_country
- WHERE p.id = :id"
+  LEFT JOIN pin_checkin pc ON pc.id_pin = p.id
+ WHERE p.id = :id
+ GROUP BY p.id,
+          co.name,
+          s.name,
+          c.name,
+          d.name,
+          p.name,
+          p.lat,
+          p.lng,
+          p.address,
+          p.link"
             );
         $stmt->bindValue(':id', $id);
 
