@@ -39,9 +39,13 @@ class PinsController
 
     public function save(Request $request)
     {
-        return new JsonResponse(array("id" => $this->pinsService->save(
+        if(\is_numeric($response = $this->pinsService->save(
             json_decode($request->getContent(), true)
-        )));
+        ))) {
+            return new JsonResponse(array("id" => $response));
+        } else {
+            return new Response($response, 403);
+        }
     }
 
     public function update($id, Request $request)

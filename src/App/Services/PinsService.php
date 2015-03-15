@@ -145,6 +145,9 @@ SELECT pin.id AS id_pin,
         }
         if(!isset($pin['id_district']) || !$pin['id_district']) {
             $address = $this->getAddressData($pin['lat'], $pin['lng']);
+            if(count($address) <=4) {
+                return "Location dont return a complete address (country, state, city, district)";
+            }
             if(!$pin['address']) {
                 $pin['address'] = $address['full'];
             }
@@ -159,6 +162,7 @@ SELECT pin.id AS id_pin,
                 );
                 $country['id'] = $this->country->save($country);
             }
+            $pin['id_country'] = $country['id'];
             # State
             $this->state = new StateService($this->db);
             $state = $this->state->getState(array(
@@ -172,6 +176,7 @@ SELECT pin.id AS id_pin,
                 );
                 $state['id'] = $this->state->save($state);
             }
+            $pin['id_state'] = $state['id'];
             # City
             $this->city = new CityService($this->db);
             $city = $this->city->getCity(array(
@@ -185,6 +190,7 @@ SELECT pin.id AS id_pin,
                 );
                 $city['id'] = $this->city->save($city);
             }
+            $pin['id_city'] = $city['id'];
             # District
             $this->district = new DistrictService($this->db);
             $district = $this->district->getDistrict(array(
@@ -199,6 +205,16 @@ SELECT pin.id AS id_pin,
                 $district['id'] = $this->district->save($district);
             }
             $pin['id_district'] = $district['id'];
+        } else {
+            $this->district = new DistrictService($this->db);
+            $district = $this->district->getDistrict(array('id' => $pin['id_district']));
+            $pin['id_city'] = $district['id_city'];
+            $this->city = new CityService($this->db);
+            $city = $this->city->getCity(array('id' => $district['id_city']));
+            $pin['id_state'] = $city['id_state'];
+            $this->state = new StateService($this->db);
+            $state = $this->state->getState(array('id' => $city['id_state']));
+            $pin['id_country'] = $state['id_country'];
         }
         $this->db->insert("pin", $pin);
         $id = $this->db->lastInsertId('pin_id_seq');
