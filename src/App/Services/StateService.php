@@ -10,13 +10,24 @@ class StateService extends BaseService
             $_where[$key] = $key.' = :'.$key;
         }
         $stmt = $this->db->prepare(
-            'SELECT * FROM state WHERE '.\implode(' AND ', $_where)
+            "SELECT *\n".
+            "  FROM state\n".
+            (count($_where)
+                ? " WHERE ".\implode(' AND ', $_where)
+                : ''
+            )."\n".
+            " ORDER BY name"
         );
         foreach($where as $key => $value) {
             $stmt->bindValue($key, $value);
         }
         if($stmt->execute()) {
-            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (count($_where)) {
+                $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            } else {
+                $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            }
+            
             return $result;
         }
     }

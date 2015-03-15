@@ -26,6 +26,9 @@ class RoutesLoader
         $this->app['user.controller'] = $this->app->share(function () {
             return new Controllers\UserController($this->app['user.service']);
         });
+        $this->app['state.controller'] = $this->app->share(function () {
+            return new Controllers\StateController($this->app['state.service']);
+        });
     }
 
     public function bindRoutesToControllers()
@@ -55,6 +58,8 @@ class RoutesLoader
         $api->post('/user', "user.controller:save");
         $api->put('/user/{id}', "user.controller:update");
         $api->delete('/user/{id}', "user.controller:delete");
+
+        $api->get('/state', "state.controller:getAll");
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }
