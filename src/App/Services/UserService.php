@@ -87,24 +87,57 @@ class UserService extends BaseService
         return $this->EmailService;
     }
 
-    public function save($user)
-    {
-        # Phone
+    private function normalize($user) {
+        # phone
         if(array_key_exists('phone', $user)) {
             $user['phones'] = $user['phone'];
             unset($user['phone']);
         }
         if(array_key_exists('phones', $user)) {
-            if($this->getPhoneService()->get($user['phones'])) {
+            if(!\is_array($user['phones'])) {
+                $user['phones'] = array(array(
+                    'number' => $user['phones']
+                ));
+            } else {
+                if(!is_array(\current($user['phones']))) {
+                    $user['phones'] = array($user['phones']);
+                }
+            }
+        }
+
+        # email
+        if(array_key_exists('email', $user)) {
+            $user['emails'] = $user['email'];
+            unset($user['email']);
+        }
+        if(array_key_exists('emails', $user)) {
+            if(!\is_array($user['emails'])) {
+                $user['emails'] = array(array(
+                    'email' => $user['emails']
+                ));
+            } else {
+                if(!is_array(\current($user['emails']))) {
+                    $user['emails'] = array($user['emails']);
+                }
+            }
+        }
+        return $user;
+    }
+
+    public function save($user)
+    {
+        $user = $this->normalize($user);
+        if(!array_key_exists('emails', $user) && array_key_exists('phones', $user)) {
+            return 'Phone or email is necessary for create account';
+        }
+        # Phone
+        if(array_key_exists('phones', $user)) {
+            if($this->getPhoneService()->get(array('phones' => $user['phones']))) {
                 return 'Phone already used';
             }
         }
 
         #email
-        if(array_key_exists('email', $user)) {
-            $user['emails'] = $user['email'];
-            unset($user['email']);
-        }
         if(array_key_exists('emails', $user)) {
             if($this->getEmailService()->get(array('emails' => $user['emails']))) {
                 return 'Email already used';

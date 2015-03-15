@@ -8,15 +8,6 @@ class EmailService extends BaseService
     public function get($param) {
         $where = $data = array();
         if(\array_key_exists('emails', $param)) {
-            if(!\is_array($param['emails'])) {
-                $param['emails'] = array(array(
-                    'email' => $param['emails']
-                ));
-            } else {
-                if(!is_array(\current($param['emails']))) {
-                    $param['emails'] = array($param['emails']);
-                }
-            }
             $i = 0;
             foreach($param['emails'] as $email) {
                 foreach($email as $key => $value) {
