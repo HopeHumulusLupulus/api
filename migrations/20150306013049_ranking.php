@@ -22,10 +22,10 @@ class Ranking extends AbstractMigration
      */
     public function up()
     {
-        $pin_ranking = $this->table('pin_ranking_type')
+        $pin_ranking_type = $this->table('pin_ranking_type')
             ->addColumn('type', 'string', array('limit' => 150))
-            ->addColumn('code', 'string', array('limit' => 20))
-            ->save();
+            ->addColumn('code', 'string', array('limit' => 20));
+        $pin_ranking_type->save();
 
         $pin_ranking = $this->table('pin_ranking')
             ->addColumn('id_pin', 'integer')
@@ -36,7 +36,7 @@ class Ranking extends AbstractMigration
             ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
             ->addForeignKey('id_pin', 'pin', 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'))
             ->addForeignKey('id_user_account', 'user_account', 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'))
-            ->addForeignKey('id_pin_ranking_type', 'pin_ranking_type', 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
+            ->addForeignKey('id_pin_ranking_type', $pin_ranking_type, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $pin_ranking->save();
 
         $pin_checkin = $this->table('pin_checkin')
@@ -61,6 +61,8 @@ class Ranking extends AbstractMigration
      */
     public function down()
     {
+        $this->dropTable('pin_checkin');
         $this->dropTable('pin_ranking');
+        $this->dropTable('pin_ranking_type');
     }
 }
