@@ -7,10 +7,15 @@ use Symfony\Component\HttpFoundation\Response;
 class UserService extends BaseService
 {
     /**
-     * 
+     *
      * @var PhoneService
      */
     private $PhoneService;
+    /**
+     *
+     * @var EmailService
+     */
+    private $EmailService;
 
     public function get($args)
     {
@@ -30,14 +35,16 @@ class UserService extends BaseService
                 case 'id':
                     $where[] = 'ua.id = :id';
                     $data['id'] = $value;
-            } 
+            }
         }
         if($data) {
             $stmt = $this->db->prepare(
-                "SELECT ua.id AS code, ua.name\n".
+                "SELECT ua.id AS code, ua.name, count(pc.id) AS total_checkin\n".
                 "  FROM user_account ua\n".
+                "  LEFT JOIN pin_checkin pc ON pc.id_user_account = ua.id\n".
                 implode("\n ", $join)."\n".
-                " WHERE ".implode("\n  AND ", $where)
+                " WHERE ".implode("\n  AND ", $where).
+                " GROUP BY ua.id, ua.name"
             );
             foreach($data as $param => $value) {
                 $stmt->bindValue($param, $value);
