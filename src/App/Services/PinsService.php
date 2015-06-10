@@ -6,6 +6,12 @@ use Doctrine\DBAL\Connection;
 class PinsService extends BaseService
 {
 
+    /**
+     *
+     * @var EmailService
+     */
+    private $EmailService;
+
     public function getAll($minLat, $minLng, $maxLat, $maxLng)
     {
         $stmt = $this->db->prepare("
@@ -177,11 +183,28 @@ SELECT pin.id AS id_pin,
         }
     }
 
+    /**
+     * Return instance of EmailService
+     * @return \App\Services\EmailService
+     */
+    public function getEmailService() {
+        if(!\is_object($this->EmailService)) {
+            $this->EmailService = new EmailService($this->db);
+        }
+        return $this->EmailService;
+    }
+
     public function save($pin)
     {
         if(array_key_exists('phones', $pin)){
             $phones = $pin['phones'];
             unset($pin['phones']);
+        }
+        if(array_key_exists('created_by', $pin)){
+            if(!\is_numeric($pin)) {
+                $user = $this->getEmailService()->get(array('emails' => $pin['created_by']));
+                $pin['created_by'] = $user['id_user_account'];
+            }
         }
         if(!isset($pin['id_district']) || !$pin['id_district']) {
             $address = $this->getAddressData($pin['lat'], $pin['lng']);
@@ -340,7 +363,12 @@ SELECT pin.id AS id_pin,
         ));
         return $this->db->lastInsertId('pin_ranking_id_seq');
     }
-    
+
+    private function saveComment()
+    {
+
+    }
+
     private function getRanking($id_pin)
     {
         $stmt = $this->db->prepare("
@@ -380,7 +408,7 @@ SELECT pin.id AS id_pin,
         $stmt->execute();
         return $stmt->fetch();
     }
-    
+
     public function saveCheckin($id_pin, $id_user_account)
     {
         $this->db->insert('pin_checkin', array(

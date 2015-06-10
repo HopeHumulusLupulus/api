@@ -7,10 +7,15 @@ use Symfony\Component\HttpFoundation\Response;
 class UserService extends BaseService
 {
     /**
-     * 
+     *
      * @var PhoneService
      */
     private $PhoneService;
+    /**
+     *
+     * @var EmailService
+     */
+    private $EmailService;
 
     public function get($args)
     {
@@ -30,28 +35,21 @@ class UserService extends BaseService
                 case 'id':
                     $where[] = 'ua.id = :id';
                     $data['id'] = $value;
-            } 
+            }
         }
         if($data) {
             $stmt = $this->db->prepare(
-                "SELECT ua.id AS code, ua.name, ua.gender, ua.birth\n".
+                "SELECT ua.id AS code, ua.name, ua.gender, ua.birth, count(pc.id) AS total_checkin\n".
                 "  FROM user_account ua\n".
+                "  LEFT JOIN pin_checkin pc ON pc.id_user_account = ua.id\n".
                 implode("\n ", $join)."\n".
-                " WHERE ".implode("\n  AND ", $where)
+                " WHERE ".implode("\n  AND ", $where).
+                " GROUP BY ua.id, ua.name"
             );
             foreach($data as $param => $value) {
                 $stmt->bindValue($param, $value);
             }
             if($stmt->execute() && $user = $stmt->fetch()) {
-	            $stmt_checkin = $this->db->prepare(
-	                "SELECT count(*) AS total_checkin, id_user_account\n".
-					"  FROM pin_checkin pc\n".
-					" WHERE pc.id_user_account = :id_user_account\n".
-            		" GROUP BY pc.id_user_account"
-	            );
-	            $stmt_checkin->bindValue('id_user_account', $user['code']);
-	            $checkin = $stmt_checkin->fetch(\PDO::FETCH_ASSOC);
-	            $user['total_checkin'] = $checkin['total_checkin'];
                 if($emails = $this->getEmailService()->get(array(
                     'id_user_account' => $user['code']
                 ))) {
@@ -165,9 +163,9 @@ class UserService extends BaseService
 
         #email
         if(array_key_exists('emails', $user)) {
-        	if($this->getEmailService()->get(array('emails' => $user['emails']))) {
-        		return 'Email already used';
-        	}
+            if($this->getEmailService()->get(array('emails' => $user['emails']))) {
+                return 'Email already used';
+            }
         }
 
         # User Account
