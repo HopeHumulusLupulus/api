@@ -34,7 +34,7 @@ class UserService extends BaseService
         }
         if($data) {
             $stmt = $this->db->prepare(
-                "SELECT ua.id AS code, ua.name\n".
+                "SELECT ua.id AS code, ua.name, ua.gender, ua.birth\n".
                 "  FROM user_account ua\n".
                 implode("\n ", $join)."\n".
                 " WHERE ".implode("\n  AND ", $where)
@@ -43,6 +43,15 @@ class UserService extends BaseService
                 $stmt->bindValue($param, $value);
             }
             if($stmt->execute() && $user = $stmt->fetch()) {
+	            $stmt_checkin = $this->db->prepare(
+	                "SELECT count(*) AS total_checkin, id_user_account\n".
+					"  FROM pin_checkin pc\n".
+					" WHERE pc.id_user_account = :id_user_account\n".
+            		" GROUP BY pc.id_user_account"
+	            );
+	            $stmt_checkin->bindValue('id_user_account', $user['code']);
+	            $checkin = $stmt_checkin->fetch(\PDO::FETCH_ASSOC);
+	            $user['total_checkin'] = $checkin['total_checkin'];
                 if($emails = $this->getEmailService()->get(array(
                     'id_user_account' => $user['code']
                 ))) {
@@ -124,6 +133,20 @@ class UserService extends BaseService
                 }
             }
         }
+
+        #gender
+        if(array_key_exists('gender', $user)) {
+            if(!in_array(strtoupper($user['gender']), array('M', 'F'))) {
+                return 'Email already used';
+            }
+        } else {
+        	$user['gender'] = null;
+        }
+
+        #birth
+        if(!array_key_exists('birth', $user)) {
+        	$user['birth'] = null;
+        }
         return $user;
     }
 
@@ -142,14 +165,16 @@ class UserService extends BaseService
 
         #email
         if(array_key_exists('emails', $user)) {
-            if($this->getEmailService()->get(array('emails' => $user['emails']))) {
-                return 'Email already used';
-            }
+        	if($this->getEmailService()->get(array('emails' => $user['emails']))) {
+        		return 'Email already used';
+        	}
         }
 
         # User Account
         $this->db->insert("user_account", array(
-            'name' => $user['name']
+            'name'   => $user['name'],
+            'gender' => strtoupper($user['gender']),
+            'birth'  => $user['birth']
         ));
         $id = $this->db->lastInsertId('user_account_id_seq');
         # Phone
