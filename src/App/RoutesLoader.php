@@ -64,6 +64,9 @@ class RoutesLoader
 
         $api->get('/state', "state.controller:getAll");
 
+        $api->post('/contact', "user.controller:contact")
+            ->value('to', $this->app['email_contact']);
+
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }
 }

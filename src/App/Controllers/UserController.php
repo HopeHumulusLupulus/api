@@ -51,4 +51,17 @@ class UserController
     {
         return new JsonResponse($this->userService->delete($id));
     }
+
+    public function contact($to, Request $request)
+    {
+        if(\is_numeric($response = $this->userService->contact(
+            $to,
+            json_decode($request->getContent(), true)
+        ))) {
+            return new JsonResponse(array("protocol" => $response));
+        } else {
+            return new Response($response, 403);
+        }
+        return new JsonResponse(true);
+    }
 }

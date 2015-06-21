@@ -192,6 +192,21 @@ class UserService extends BaseService
         return $id;
     }
 
+    public function contact($to, $data)
+    {
+        $ok = mail($to, 'Contato',
+            "Nome: {$data['name']}\n".
+            "Email: {$data['email']}\n".
+            "Mensagem: {$data['message']}"
+        );
+        $this->db->insert("contact", array(
+            'name'    => $data['name'],
+            'email'   => $data['email'],
+            'message' => $data['message']
+        ));
+        return $this->db->lastInsertId('contact_id_seq');
+    }
+
     public function update($id, $user)
     {
     }
