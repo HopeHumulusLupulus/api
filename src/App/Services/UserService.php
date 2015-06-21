@@ -39,7 +39,8 @@ class UserService extends BaseService
         }
         if($data) {
             $stmt = $this->db->prepare(
-                "SELECT ua.id AS code, ua.name, ua.gender, ua.birth, count(pc.id) AS total_checkin\n".
+                "SELECT ua.id AS code, ua.name, ua.gender, ua.birth, count(pc.id) AS total_checkin,\n".
+                "       count(DISTINCT pc.id_pin) AS total_visited".
                 "  FROM user_account ua\n".
                 "  LEFT JOIN pin_checkin pc ON pc.id_user_account = ua.id\n".
                 implode("\n ", $join)."\n".
