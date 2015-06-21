@@ -16,7 +16,7 @@ class First extends AbstractMigration
     {
     }
     */
-    
+
     /**
      * Migrate Up.
      */
@@ -303,6 +303,9 @@ INSERT INTO city (id,name,id_state) VALUES (78,'São Paulo',25);
 INSERT INTO city (id,name,id_state) VALUES (79,'Sorocaba',25);
 INSERT INTO city (id,name,id_state) VALUES (80,'Votorantim',25);
 INSERT INTO city (id,name,id_state) VALUES (81,'Aracajú',26);
+INSERT INTO city (id,name,id_state) VALUES (82,'Penedo',19);
+INSERT INTO city (id,name,id_state) VALUES (83,'Rio das Ostras',19);
+INSERT INTO city (id,name,id_state) VALUES (84,'Vassouras',19);
 SELECT setval('city_id_seq', (SELECT MAX(id) FROM city));
 
 /*
@@ -577,6 +580,16 @@ INSERT INTO district (id,name,id_city) VALUES (258,'Centro',80);
 INSERT INTO district (id,name,id_city) VALUES (259,'Jardim Elizabeth',80);
 INSERT INTO district (id,name,id_city) VALUES (260,'Vossoroca',80);
 INSERT INTO district (id,name,id_city) VALUES (261,'Atalaia',81);
+INSERT INTO district (id,name,id_city) VALUES (262,'Catumbi',36);
+INSERT INTO district (id,name,id_city) VALUES (263,'Cavaleiros',32);
+INSERT INTO district (id,name,id_city) VALUES (264,'Freguesia',36);
+INSERT INTO district (id,name,id_city) VALUES (265,'Inhaúma',36);
+INSERT INTO district (id,name,id_city) VALUES (266,'Méier',36);
+INSERT INTO district (id,name,id_city) VALUES (267,'Pechincha',36);
+INSERT INTO district (id,name,id_city) VALUES (268,'Mutuá',37);
+INSERT INTO district (id,name,id_city) VALUES (269,'Agriões',38);
+INSERT INTO district (id,name,id_city) VALUES (270,'Comercial',82);
+INSERT INTO district (id,name,id_city) VALUES (271,'Costa Azul',83);
 SELECT setval('district_id_seq', (SELECT MAX(id) FROM district));
 
 /*
@@ -595,7 +608,13 @@ SELECT country.id AS id_country,
   JOIN city c ON c.id = d.id_city AND c.name = TRIM(i.municipio)
   JOIN state s ON s.id = c.id_state
   JOIN country ON country.id = s.id_country
- ORDER BY d.id, i.lat;
+  LEFT JOIN pin ON pin.id_country = country.id
+   AND pin.id_state = s.id
+   AND pin.id_city = c.id
+   AND pin.id_district = d.id
+   AND pin.name = i.nome
+ WHERE pin.id IS NULL
+ ORDER BY d.id, lat;
 */
 
 INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (1,1,1,1,1,'Deck - freshfood&lounge',-9.97562,-67.809105,'Av. Getulio Vargas, 178.','');
@@ -998,12 +1017,38 @@ INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address
 INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (398,1,25,80,259,'Cervejaria Baden Baden',-22.718983,-45.567295,'Rua DRua Djalma Forjaz, 93','www.obadenbaden.com.br');
 INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (399,1,25,80,260,'Mr. Beer (Iguatemi Sorocaba)',-22.951702,-43.37692,'Av. Gisele Constantino, 1800. Loja 124B.','http://www.mrbeercervejas.com.br/');
 INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (400,1,26,81,261,'Calles Bar de Tapas',-10.990155,-37.049873,'Avenida Santos Dumont, 188.','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (401,1,19,36,101,'enchendo linguica',-22.912409,-43.184734,'Rua dos Inválidos, 164a - Centro, Rio de Janeiro - RJ, 20231-045, Brasil',null);
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (402,1,19,36,262,'teste11',-22.920137,-43.19575,'Rua Doutor Agra, 66 - Catumbi, Rio de Janeiro - RJ, Brasil','seila');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (403,1,6,7,19,'Tupinibeer Cervejas Especiais',-3.736024,-38.50369,'Rua Nunes Valente, 1247.','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (404,1,19,33,85,'Armazém São Jorge',-22.90458,-43.101948,'Rua Dr. Leandro Mota, 8. Loja B.','http://www.armazemsaojorge.com');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (405,1,19,34,92,'Vagão Beer and Food (Shopping Estação Itaipava)',-22.395615,-43.133057,'Estrada União e Indústria, 11.000.','http://vagaobeer.com');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (406,1,19,36,121,'Aprazível Restaurante',-22.924812,-43.187485,'Rua Aprazível, 62.','http://www.aprazivel.com.br/');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (407,1,19,36,121,'Rústico',-22.921284,-43.18644,'Rua Paschoal Carlos Magno, 121.','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (408,1,19,36,124,'Gullos Tabacaria',-22.932232,-43.241283,'Rua Uruguai, 380.','http://www.gullotabacaria.com.br/');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (409,1,19,36,124,'Bar do Momo',-22.9298,-43.24312,'Rua General Espírito Santo Cardoso, 50. Loja A.','https://www.facebook.com/bardomomotijuca');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (410,1,19,36,124,'Mistura e Manda',-22.919926,-43.233852,'Rua Major Ávila, 455.','https://pt-br.facebook.com/MisturaManda');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (411,1,19,36,124,'Itajubar',-22.915203,-43.216972,'Rua Vicente Licínio, 57','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (412,1,19,36,124,'Gran Delli',-22.903135,-43.244328,'Rua São Francisco Xavier, 352.','http://grandellicatessen.blogspot.com.br/');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (413,1,19,38,128,'Taberna Alpina',-22.411514,-42.96861,'Rua Duque de Caxias, 131.','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (414,1,19,38,128,'Vagão Beer and Food',-22.409664,-42.96733,'Av. Lúcio Meira, 855.','http://vagaobeer.com');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (415,1,25,78,232,'1ª Cervejaria da Móoca',-23.56254,-46.593426,'Rua Guaimbê, 148','www.primeiracervejariadamooca.com.br/');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (416,1,19,32,263,'Kebab Store (Macaé Palace)',-22.40017,-41.792267,'Av. Atlântica, 1788. Loja 08.','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (417,1,19,36,264,'Revolution Pub',-22.939354,-43.336918,'Rua Comandante Rubens Silva, 448.','http://revolutionrio.blogspot.com.br/');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (418,1,19,36,264,'Bravado Carnes Nobres',-22.93799,-43.33733,'Rua Comandante Rubens Silva, 292. Loja 107. ','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (419,1,19,36,264,'Armazém Urbano',-22.931103,-43.332344,'Estrada do Páu-Ferro, 1070','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (420,1,19,36,265,'Bistrô Estação R&R',-22.866898,-43.27301,'Travessa Jalisco, 32.','http://www.bistroestacaorer.com.br/');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (421,1,19,36,266,'Wenceslau Beer Club',-22.900492,-43.28085,'Rua Silva Rabêlo, 61.','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (422,1,19,36,267,'Deliciando Quitanda Gourmet',-22.926357,-43.34704,'Estrada do Pau Ferro, 313.','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (423,1,19,37,268,'The Souzas',-22.814482,-43.03969,'Av. Paula Lemos, 17.','https://www.facebook.com/pages/The-Souzas-Cervejas-e-Gourmet');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (424,1,19,38,269,'Cenário Bier',-22.420303,-42.976513,'Rua Carmela Dutra, 306.','');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (425,1,19,82,270,'Casa do Fritz',-22.43879,-44.525234,'Av. das Mangueiras, 518.','http://www.casadofritz.com.br/');
+INSERT INTO pin (id,id_country,id_state,id_city,id_district,name,lat,lng,address,link) VALUES (426,1,19,83,271,'Brewpub Elixir',-22.517878,-41.94791,'Av. Roberto Silveira 319.','https://www.facebook.com/brewpubelixir');
 
 SELECT setval('pin_id_seq', (SELECT MAX(id) FROM pin));
 
-UPDATE pin SET enabled = created;
-UPDATE pin SET enabled_by = 'vitor.mattos@gmail.com';
-UPDATE pin SET created_by = 'vitor.mattos@gmail.com';
+UPDATE pin SET enabled = created WHERE enabled IS NULL;
+UPDATE pin SET enabled_by = 'vitor.mattos@gmail.com' WHERE enabled_by IS NULL;
+UPDATE pin SET created_by = 'vitor.mattos@gmail.com' WHERE enabled_by IS NULL;
 
 INSERT INTO phone_type (type) VALUES ('Empresarial');
 INSERT INTO phone_type (type) VALUES ('Celular');
@@ -1031,6 +1076,8 @@ SELECT x.number,
            JOIN pin p ON p.name = i.nome AND p.address = i.endereco
            WHERE length(i.telefone) > 0
        ) AS x
+  LEFT JOIN phone_pin pp ON pp.id_pin = x.id
+ WHERE pp.id IS NULL
 */
 
 INSERT INTO phone_pin (id_phone_type,number,id_pin,other_type) VALUES (1,'6833016224',1,null);
@@ -1383,6 +1430,28 @@ INSERT INTO phone_pin (id_phone_type,number,id_pin,other_type) VALUES (1,'153522
 INSERT INTO phone_pin (id_phone_type,number,id_pin,other_type) VALUES (1,'1236636082',398,null);
 INSERT INTO phone_pin (id_phone_type,number,id_pin,other_type) VALUES (1,'1532475943',399,null);
 INSERT INTO phone_pin (id_phone_type,number,id_pin,other_type) VALUES (1,'7930252725',400,null);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('8530162020',1,403);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('21983664822',2,404);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2422320015',1,405);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2125089174',1,406);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2134973579',1,407);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2134952723',1,408);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2125878756',1,410);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2125657893',1,411);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2135292349',1,412);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2127420123',1,413);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2126433034',1,414);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('1126045275',1,415);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2227657316',1,416);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2135925001',1,417);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2131773447',1,418);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2124255522',1,419);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2138848388',1,420);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2131746614',1,421);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2127135381',1,423);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('21988838283',2,424);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2433511751',1,425);
+INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2233230303',1,426);
 
 SELECT setval('phone_pin_id_seq', (SELECT MAX(id) FROM phone_pin));
 ");
