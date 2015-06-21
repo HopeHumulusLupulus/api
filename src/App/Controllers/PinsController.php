@@ -106,28 +106,4 @@ class PinsController
         );
         return new JsonResponse(true);
     }
-
-    public function checkin($id_pin, Request $request)
-    {
-        $post = json_decode($request->getContent(), true);
-        if(!$this->pinsService->getOne($id_pin)) {
-            return new Response('This pin does not exist', 403);
-        }
-        if(!$this->userService->get(array('id' => $post['user_code']))) {
-            return new Response('Dont exists user with this code', 403);
-        }
-        $last = $this->pinsService->getLastCheckin($id_pin, $post['user_code']);
-        if($last) {
-            $last_created = new \DateTime();
-            $last_created->sub(new \DateInterval('P1D'));
-            if($last['created'] > $last_created->format('Y-m-d H-i-s')) {
-                return new Response('Only is possible make a checkin ', 403);
-            }
-        }
-        $this->pinsService->saveCheckin(
-            $id_pin,
-            $post['user_code']
-        );
-        return new JsonResponse(true);
-    }
 }
