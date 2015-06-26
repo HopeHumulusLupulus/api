@@ -25,7 +25,6 @@ class UserService extends BaseService
                 case 'email':
                     $where[] = 'eua.email = :email';
                     $data[$field] = $value;
-                    $join[] = 'JOIN email_user_account eua ON eua.id_user_account = ua.id';
                     break;
                 case 'phone':
                     $where[] = 'pua.number = :number';
@@ -45,8 +44,8 @@ class UserService extends BaseService
                 "       count(DISTINCT pin.id) AS total_created\n".
                 "  FROM user_account ua\n".
                 "  LEFT JOIN pin_checkin pc ON pc.id_user_account = ua.id\n".
-                "  LEFT JOIN email_user_account eua ON eua.id_user_account = ua.id".
-                "  LEFT JOIN pin ON pin.created_by = eua.email".
+                "  LEFT JOIN email_user_account eua ON eua.id_user_account = ua.id\n".
+                "  LEFT JOIN pin ON pin.created_by = eua.email\n".
                 implode("\n ", $join)."\n".
                 " WHERE ".implode("\n  AND ", $where).
                 " GROUP BY ua.id, ua.name"
