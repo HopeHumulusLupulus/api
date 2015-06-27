@@ -371,17 +371,34 @@ SELECT pin.id AS id_pin,
 
     private function getRanking($id_pin)
     {
-        $stmt = $this->db->prepare("
+        $sql = "
             SELECT prt.code,
                    prt.type,
-                   SUM(pr.ranking)/COUNT(pr.ranking) AS ranking
+                   prt.weight,
+                   SUM(pr.ranking)/COUNT(pr.ranking) AS ranking,
+                   0 AS \"order\"
               FROM pin_ranking_type prt
               LEFT JOIN pin_ranking pr ON prt.id = pr.id_pin_ranking_type
                     AND pr.id_pin = :id_pin
                     AND last = 1
+             WHERE prt.enabled = true
              GROUP BY prt.code,
-                      prt.type
-        ");
+                      prt.type,
+                      prt.weight
+        ";
+        $sql =
+            "SELECT *
+               FROM (
+                $sql
+               UNION
+              SELECT 'general', 'Avaliação Geral', null,
+                     SUM(ranking * weight) / SUM (weight),
+                     1 AS \"order\"
+                FROM ($sql) x
+                ) y
+               ORDER BY \"order\"
+            ";
+        $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':id_pin', $id_pin);
         $stmt->execute();
         $return = array();
