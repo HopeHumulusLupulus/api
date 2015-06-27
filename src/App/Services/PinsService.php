@@ -375,10 +375,10 @@ SELECT pin.id AS id_pin,
             SELECT prt.code,
                    prt.type,
                    SUM(pr.ranking)/COUNT(pr.ranking) AS ranking
-              FROM pin_ranking pr
-              JOIN pin_ranking_type prt ON prt.id = pr.id_pin_ranking_type
-             WHERE pr.id_pin = :id_pin
-               AND last = 1
+              FROM pin_ranking_type prt
+              LEFT JOIN pin_ranking pr ON prt.id = pr.id_pin_ranking_type
+                    AND pr.id_pin = :id_pin
+                    AND last = 1
              GROUP BY prt.code,
                       prt.type
         ");
