@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\PinsService;
 use App\Services\UserService;
+use Symfony\Component\HttpFoundation\Symfony\Component\HttpFoundation;
 
 
 class PinsController
@@ -80,7 +81,7 @@ class PinsController
                 $ranking['ranking']
             );
         }
-        return new JsonResponse(true);
+        return new JsonResponse($this->pinsService->getRanking($id));
     }
 
     public function checkin($id_pin, Request $request)

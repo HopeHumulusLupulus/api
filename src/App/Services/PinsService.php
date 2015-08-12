@@ -369,7 +369,7 @@ SELECT pin.id AS id_pin,
 
     }
 
-    private function getRanking($id_pin)
+    public function getRanking($id_pin)
     {
         $sql = "
             SELECT prt.code,
@@ -392,7 +392,7 @@ SELECT pin.id AS id_pin,
                 $sql
                UNION
               SELECT 'general', 'Avaliação Geral', null,
-                     SUM(ranking * weight) / SUM (weight),
+                     ROUND((SUM(ranking * weight) / SUM (weight)) * 20, 1),
                      1 AS \"order\"
                 FROM ($sql) x
                 ) y
