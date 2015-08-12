@@ -66,6 +66,7 @@ class RoutesLoader
 
         $api->post('/contact', "user.controller:contact")
             ->value('to', $this->app['email_contact']);
+        $this->app['monolog']->addLogger('email', $this->app['email_contact']);
 
         $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
     }
