@@ -21,10 +21,11 @@ class PinsController
      */
     private $userService;
 
-    public function __construct($pin_service, $user_service)
+    public function __construct($app)
     {
-        $this->pinsService = $pin_service;
-        $this->userService = $user_service;
+        $this->app = $app;
+        $this->pinsService = $app['pins.service'];
+        $this->userService = $app['user.service'];
     }
 
     public function getAll(Request $request)

@@ -3,8 +3,9 @@
 namespace App;
 
 use Silex\Application;
+use Silex\Route;
 
-class RoutesLoader
+class RoutesLoader extends Route
 {
     /**
      * @var Application
@@ -21,10 +22,7 @@ class RoutesLoader
     private function instantiateControllers()
     {
         $this->app['pins.controller'] = $this->app->share(function () {
-            return new Controllers\PinsController(
-                $this->app['pins.service'],
-                $this->app['user.service']
-            );
+            return new Controllers\PinsController($this->app);
         });
         $this->app['user.controller'] = $this->app->share(function () {
             return new Controllers\UserController($this->app['user.service']);
@@ -48,7 +46,7 @@ class RoutesLoader
         $api->post('/pin/checkin/{id_pin}', "pins.controller:checkin");
         # user
         $api->get('/user/{args}', "user.controller:get")
-            ->assert('args', '.*')
+            ->assert('args', '^(email|phone):.*')
             ->convert('args', function ($args) {
                 $args = explode('/', $args);
                 $return = array();
@@ -59,6 +57,7 @@ class RoutesLoader
                 return $return;
             });
         $api->post('/user', "user.controller:save");
+        $api->get('/user/login/email-token/{token}', "user.controller:login_email_token");
         $api->put('/user/{id}', "user.controller:update");
         $api->delete('/user/{id}', "user.controller:delete");
 

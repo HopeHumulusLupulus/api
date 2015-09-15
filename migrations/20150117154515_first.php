@@ -1429,28 +1429,6 @@ INSERT INTO phone_pin (id_phone_type,number,id_pin,other_type) VALUES (1,'153522
 INSERT INTO phone_pin (id_phone_type,number,id_pin,other_type) VALUES (1,'1236636082',398,null);
 INSERT INTO phone_pin (id_phone_type,number,id_pin,other_type) VALUES (1,'1532475943',399,null);
 INSERT INTO phone_pin (id_phone_type,number,id_pin,other_type) VALUES (1,'7930252725',400,null);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('8530162020',1,403);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('21983664822',2,404);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2422320015',1,405);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2125089174',1,406);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2134973579',1,407);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2134952723',1,408);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2125878756',1,410);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2125657893',1,411);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2135292349',1,412);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2127420123',1,413);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2126433034',1,414);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('1126045275',1,415);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2227657316',1,416);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2135925001',1,417);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2131773447',1,418);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2124255522',1,419);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2138848388',1,420);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2131746614',1,421);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2127135381',1,423);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('21988838283',2,424);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2433511751',1,425);
-INSERT INTO phone_pin (number,id_phone_type,id) VALUES ('2233230303',1,426);
 
 SELECT setval('phone_pin_id_seq', (SELECT MAX(id) FROM phone_pin));
 ");

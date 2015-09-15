@@ -22,11 +22,6 @@ require ROOT_PATH . '/resources/config/'.$env.'.php';
 
 //handling CORS preflight request
 $app->before(function (Request $request, $app) {
-    $app['monolog']->addError('Request', array(
-        'headers' => $request->headers->all(),
-        'content' => $request->getContent(),
-        'uri' => $request->getUri()
-    ));
     if ($request->getMethod() === "OPTIONS") {
         $response = new Response();
         $response->headers->set("Access-Control-Allow-Origin","*");
@@ -45,9 +40,6 @@ $app->after(function (Request $request, Response $response, $app) {
     if(!$response->headers->get('Access-Control-Allow-Methods')){
         $response->headers->set("Access-Control-Allow-Methods","GET,POST,PUT,DELETE,OPTIONS");
     }
-    $app['monolog']->addError('Response', array(
-        'headers' => $response->headers->all()
-    ));
     return $response;
 });
 

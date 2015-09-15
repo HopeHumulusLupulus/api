@@ -64,4 +64,9 @@ class UserController
         }
         return new JsonResponse(true);
     }
+
+    public function login_email_token($token)
+    {
+        $break = 1;
+    }
 }
