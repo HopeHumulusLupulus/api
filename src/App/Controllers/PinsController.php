@@ -47,9 +47,13 @@ class PinsController
 
     public function save(Request $request)
     {
-        if(\is_numeric($response = $this->pinsService->save(
-            json_decode($request->getContent(), true)
-        ))) {
+        $post = json_decode($request->getContent(), true);
+        if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
+            return new Response('Invalid Access Token', 403);
+        }
+        unset($post['access-token']);
+        $post['created_by'] = $user['id'];
+        if(\is_numeric($response = $this->pinsService->save($post))) {
             return new JsonResponse(array("id" => $response));
         } else {
             return new Response($response, 403);
@@ -58,26 +62,41 @@ class PinsController
 
     public function update($id, Request $request)
     {
+        $post = json_decode($request->getContent(), true);
+        if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
+            return new Response('Invalid Access Token', 403);
+        }
+        unset($post['access-token']);
+        $post['enabled_by'] = $user['id'];
         return new JsonResponse(array(
             "id" => $this->pinsService->update(
                 $request->get('id'),
-                json_decode($request->getContent(), true)
+                $post
             )
         ));
     }
 
-    public function delete($id)
+    public function delete($id, Request $request)
     {
+        $post = json_decode($request->getContent(), true);
+        if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
+            return new Response('Invalid Access Token', 403);
+        }
+        unset($post['access-token']);
         return new JsonResponse($this->pinsService->delete($id));
     }
 
     public function ranking($id, Request $request)
     {
         $post = json_decode($request->getContent(), true);
+        if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
+            return new Response('Invalid Access Token', 403);
+        }
+        unset($post['access-token']);
         foreach($post['ranking'] as $ranking) {
             $this->pinsService->saveRanking(
                 $id,
-                $post['user_code'],
+                $user['id'],
                 $ranking['code'],
                 $ranking['ranking']
             );
@@ -91,10 +110,10 @@ class PinsController
         if(!$this->pinsService->getOne($id_pin)) {
             return new Response('This pin does not exist', 403);
         }
-        if(!$this->userService->get(array('id' => $post['user_code']))) {
-            return new Response('Dont exists user with this code', 403);
+        if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
+            return new Response('Invalid Access Token', 403);
         }
-        $last = $this->pinsService->getLastCheckin($id_pin, $post['user_code']);
+        $last = $this->pinsService->getLastCheckin($id_pin, $user['id']);
         if($last) {
             $last_created = new \DateTime();
             $last_created->sub(new \DateInterval('P1D'));
@@ -104,7 +123,7 @@ class PinsController
         }
         $this->pinsService->saveCheckin(
             $id_pin,
-            $post['user_code']
+            $user['id']
         );
         return new JsonResponse(true);
     }

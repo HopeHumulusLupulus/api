@@ -78,6 +78,83 @@ class UserService extends BaseService
             }
         }
     }
+    
+    public function loginByPassword($post)
+    {
+        $join = $where = $data = array();
+        foreach($post as $field => $value) {
+            switch($field) {
+                case 'email':
+                    $where[] = 'eua.email = :email';
+                    $data[$field] = $value;
+                    $join[] = 'JOIN email_user_account eua ON eua.id_user_account = ua.id';
+                    break;
+                case 'phone':
+                    $where[] = 'pua.number = :number';
+                    $data['number'] = $value;
+                    $join[] = 'JOIN phone_user_account pua ON pua.id_user_account = ua.id';
+                    break;
+            }
+        }
+        if($data) {
+            $stmt = $this->db->prepare(
+                "SELECT ua.id,\n".
+                "       ua.password\n".
+                "  FROM user_account ua\n".
+                implode("\n ", $join)."\n".
+                " WHERE ".implode("\n  AND ", $where)."\n".
+                " GROUP BY ua.id, ua.password"
+            );
+            foreach($data as $param => $value) {
+                $stmt->bindValue($param, $value);
+            }
+            if($stmt->execute() && $user = $stmt->fetch()) {
+                $stmt = $this->db->prepare(
+                    "SELECT id,\n".
+                    "       access_token\n".
+                    "  FROM session_user_account\n".
+                    " WHERE id_user_account = :id_user_account\n".
+                    "   AND method = :method\n".
+                    " ORDER BY created DESC\n".
+                    " LIMIT 1"
+                );
+                $stmt->bindValue('id_user_account', $user['id']);
+                $stmt->bindValue('method', 'password');
+                $stmt->execute();
+                $last = $stmt->fetch();
+                $insert = array(
+                    'id_user_account' => $user['id'],
+                    'method' => 'password',
+                    'attempts' => 1
+                );
+                if(password_verify($post['password'], $user['password'])) {
+                    $access_token = bin2hex(openssl_random_pseudo_bytes(20));
+                    if(!$last || $last['access_token']) {
+                        $insert['access_token'] = $access_token;
+                        $insert['authenticated'] = date('Y-m-d H:i:s.u');
+                    }
+                }
+                if($last && !$last['access_token']) {
+                    $stmt = $this->db->prepare(
+                        'UPDATE session_user_account '.
+                        '   SET attempts = attempts +1,'.
+                        '       access_token = :access_token,'.
+                        '       authenticated = :authenticated'.
+                        ' WHERE id = :id'
+                    );
+                    $stmt->execute(array(
+                        'access_token' => $access_token ?: null,
+                        'authenticated' => $access_token ? date('Y-m-d H:i:s.u') : null,
+                        'id' => $last['id']
+                    ));
+                } else {
+                    $this->db->insert('session_user_account', $insert);
+                }
+            }
+            return $access_token ?: false;
+        }
+        
+    }
 
     /**
      * Return instance of PhoneService
@@ -171,12 +248,45 @@ class UserService extends BaseService
                 return 'Email already used';
             }
         }
+        
+        # gender
+        if(array_key_exists('gender', $user)) {
+            if(!in_array(strtoupper($user['gender']), array('M', 'F'))) {
+                return 'Invalid gender';
+            }
+        }
+        
+        # birth
+        if(array_key_exists('birth', $user)) {
+            $user['birth'] = \DateTime::createFromFormat('Y-m-d', $user['birth']);
+            if(!$user['birth']) {
+                return 'Invalid birth';
+            } else {
+                $eighteen = new \DateTime();
+                $eighteen->sub(new \DateInterval('P18Y'));
+                if($user['birth'] > $eighteen) {
+                    return 'Only allowed to 18 years';
+                }
+                $user['birth'] = $user['birth']->format('Y-m-d');
+            }
+        }
+        
+        if(array_key_exists('password', $user)) {
+            if(!is_string($user['password'])) {
+                return 'Password must be a string';
+            }
+            if(strlen($user['password']) < 6) {
+                return 'Password is not allowed under 6 characters';
+            }
+            $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
+        }
 
         # User Account
         $this->db->insert("user_account", array(
             'name'   => $user['name'],
-            'gender' => strtoupper($user['gender']),
-            'birth'  => $user['birth']
+            'gender' => strtoupper($user['gender']) ? : null,
+            'birth'  => $user['birth'],
+            'password' => $user['password'] ? : null
         ));
         $id = $this->db->lastInsertId('user_account_id_seq');
         # Phone
@@ -196,13 +306,8 @@ class UserService extends BaseService
         return $id;
     }
 
-    public function contact($to, $data)
+    public function contact($data)
     {
-        $ok = mail($to, 'Contato',
-            "Nome: {$data['name']}\n".
-            "Email: {$data['email']}\n".
-            "Mensagem: {$data['message']}"
-        );
         $this->db->insert("contact", array(
             'name'    => $data['name'],
             'email'   => $data['email'],
@@ -210,7 +315,69 @@ class UserService extends BaseService
         ));
         return $this->db->lastInsertId('contact_id_seq');
     }
-
+    
+    public function requestToken($data)
+    {
+        $this->db->insert('session_user_account', array(
+            'id_user_account' => $data['id'],
+            'method' => $data['method'],
+            'token' => $token = mt_rand(1000000,9999999)
+        ));
+        return $token;
+    }
+    
+    public function validateToken($data)
+    {
+        $stmt = $this->db->prepare(
+            "SELECT *\n".
+            "  FROM session_user_account\n".
+            " WHERE created = (\n".
+            "       SELECT max(created) AS created\n".
+            "         FROM session_user_account\n".
+            "        WHERE id_user_account = :id\n".
+            "          AND method = :method\n".
+            "       )\n".
+            "   AND method = :method\n".
+            "   AND id_user_account = :id".
+            "   AND authenticated IS NULL;"
+        );
+        $stmt->bindValue('id', $data['id']);
+        $stmt->bindValue('method', $data['method']);
+        if($stmt->execute() && $last = $stmt->fetch()) {
+            if($last['token'] == $data['token']) {
+                $stmt = $this->db->prepare(
+                    'UPDATE session_user_account '.
+                    '   SET access_token = :access_token, '. 
+                    '       authenticated = now(), '. 
+                    '       attempts = attempts +1'.
+                    ' WHERE id = :id'
+                );
+                $stmt->execute(array(
+                    'id' => $last['id'],
+                    'access_token' => $access_token = bin2hex(openssl_random_pseudo_bytes(20))
+                ));
+                return $access_token;
+            } else {
+                $stmt = $this->db->prepare('UPDATE session_user_account SET attempts = attempts +1 WHERE id = :id');
+                $stmt->execute(array('id' => $last['id']));
+                return false;
+            }
+        }
+        return false;
+    }
+    
+    public function validateAccessToken($token)
+    {
+        $stmt = $this->db->prepare(
+            "SELECT ua.*\n".
+            "  FROM session_user_account sua\n".
+            "  JOIN user_account ua ON ua.id = sua.id_user_account\n".
+            " WHERE sua.access_token = :access_token"
+        );
+        $stmt->execute(array('access_token' => $token));
+        return $stmt->fetch() ? : false;
+    }
+    
     public function update($id, $user)
     {
     }

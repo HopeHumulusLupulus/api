@@ -17,8 +17,13 @@ class SessionAccount extends AbstractMigration
         $session_user_account = $this->table('session_user_account');
         $session_user_account
             ->addColumn('id_user_account', 'integer')
-            ->addColumn('method', 'enum', array('values' => array('email-token')))
+            ->addColumn('method', 'enum', array('values' => array('email-token', 'sms-token', 'password')))
+            ->addColumn('token', 'char', array('limit' => 7, 'null' => true))
+            ->addColumn('attempts', 'integer', array('default' => 0))
+            ->addColumn('access_token', 'char', array('limit' => 40, 'null' => true))
             ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
-            ->addForeignKey('id_user_account', $user_account, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
+            ->addColumn('authenticated', 'datetime', array('null' => true))
+            ->addForeignKey('id_user_account', 'user_account', 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
+        $session_user_account->save();
     }
 }

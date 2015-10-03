@@ -5,4 +5,12 @@
     #RewriteBase /path/to/app
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [QSA,L]
+    SetEnv DB_DRIVER pdo_pgsql
+    SetEnv DB_HOST localhost
+    SetEnv DB_NAME lupulocalizador
+    SetEnv DB_USER postgres
+    SetEnv DB_PASSWORD postgres
+    SetEnv DB_CHARSET utf-8
+    SetEnv EMAIL_CONTACT teste@lupulocalizador.com
+    SetEnv APP_ENV dev
 </IfModule>

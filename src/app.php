@@ -63,6 +63,13 @@ $app->register(new MonologServiceProvider(), array(
     "monolog.name" => "application"
 ));
 
+$app->register(new Silex\Provider\SwiftmailerServiceProvider(), array(
+    'swiftmailer.options' => $app['swiftmailer.options'],
+    'swiftmailer.use_spool' => $app['swiftmailer.use_spool']
+));
+
+$app->register(new Cocur\Slugify\Bridge\Silex\SlugifyServiceProvider());
+
 //load services
 $servicesLoader = new App\ServicesLoader($app);
 $servicesLoader->bindServicesIntoContainer();

@@ -17,7 +17,7 @@ class PinsService extends BaseService
         $stmt = $this->db->prepare("
 SELECT p.id,
        co.name AS country,
-       s.name AS state,
+       s.abbreviation AS state,
        c.name AS city,
        d.name AS district,
        p.name,
@@ -38,7 +38,7 @@ SELECT p.id,
        AND p.deleted IS NULL
  GROUP BY p.id,
           co.name,
-          s.name,
+          s.abbreviation,
           c.name,
           d.name,
           p.name,
@@ -94,7 +94,7 @@ SELECT pin.id AS id_pin,
         $stmt = $this->db->prepare("
 SELECT p.id,
        co.name AS country,
-       s.name AS state,
+       s.abbreviation AS state,
        c.name AS city,
        d.name AS district,
        p.name,
@@ -112,7 +112,7 @@ SELECT p.id,
  WHERE p.id = :id
  GROUP BY p.id,
           co.name,
-          s.name,
+          s.abbreviation,
           c.name,
           d.name,
           p.name,
@@ -199,12 +199,6 @@ SELECT pin.id AS id_pin,
         if(array_key_exists('phones', $pin)){
             $phones = $pin['phones'];
             unset($pin['phones']);
-        }
-        if(array_key_exists('created_by', $pin)){
-            if(!\is_numeric($pin)) {
-                $user = $this->getEmailService()->get(array('emails' => $pin['created_by']));
-                $pin['created_by'] = $user['id_user_account'];
-            }
         }
         if(!isset($pin['id_district']) || !$pin['id_district']) {
             $address = $this->getAddressData($pin['lat'], $pin['lng']);
@@ -294,12 +288,10 @@ SELECT pin.id AS id_pin,
             $phones = $pin['phones'];
             unset($pin['phones']);
             $this->db->delete("phone_pin", array(
-                'id_entity' => $id,
-                'entity' => 'pin'
+                'id_pin' => $id
             ));
             foreach($phones as $phone) {
-                $phone['entity'] = 'pin';
-                $phone['id_entity'] = $id;
+                $phone['id_pin'] = $id;
                 $this->db->insert("phone_pin", $phone);
             }
         }
@@ -371,7 +363,9 @@ SELECT pin.id AS id_pin,
 
     public function getRanking($id_pin)
     {
-        $sql = "
+        $sql =
+            "SELECT *
+               FROM (
             SELECT prt.code,
                    prt.type,
                    prt.weight,
@@ -385,16 +379,25 @@ SELECT pin.id AS id_pin,
              GROUP BY prt.code,
                       prt.type,
                       prt.weight
-        ";
-        $sql =
-            "SELECT *
-               FROM (
-                $sql
                UNION
               SELECT 'general', 'Avaliação Geral', null,
                      ROUND((SUM(ranking * weight) / SUM (weight)) * 20, 1),
                      1 AS \"order\"
-                FROM ($sql) x
+                FROM (
+		            SELECT prt.code,
+		                   prt.type,
+		                   prt.weight,
+		                   SUM(pr.ranking)/COUNT(pr.ranking) AS ranking,
+		                   0 AS \"order\"
+		              FROM pin_ranking_type prt
+		              LEFT JOIN pin_ranking pr ON prt.id = pr.id_pin_ranking_type
+		                    AND pr.id_pin = :id_pin
+		                    AND last = 1
+		             WHERE prt.enabled = true AND ranking IS NOT NULL
+		             GROUP BY prt.code,
+		                      prt.type,
+		                      prt.weight
+            		) x
                 ) y
                ORDER BY \"order\"
             ";
