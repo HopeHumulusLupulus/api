@@ -48,6 +48,7 @@ class UserService extends BaseService
                 "  LEFT JOIN pin ON pin.created_by = eua.email\n".
                 implode("\n ", $join)."\n".
                 " WHERE ".implode("\n  AND ", $where).
+                "   AND ua.deleted IS NULL".
                 " GROUP BY ua.id, ua.name"
             );
             foreach($data as $param => $value) {
@@ -103,6 +104,7 @@ class UserService extends BaseService
                 "  FROM user_account ua\n".
                 implode("\n ", $join)."\n".
                 " WHERE ".implode("\n  AND ", $where)."\n".
+                "   AND deleted IS NULL".
                 " GROUP BY ua.id, ua.password"
             );
             foreach($data as $param => $value) {
@@ -329,17 +331,20 @@ class UserService extends BaseService
     public function validateToken($data)
     {
         $stmt = $this->db->prepare(
-            "SELECT *\n".
-            "  FROM session_user_account\n".
-            " WHERE created = (\n".
+            "SELECT sua.*\n".
+            "  FROM session_user_account sua\n".
+            "  JOIN user_account ua\n".
+            "    ON ua.id = sua.id_user_account\n".
+            "   AND ua.deleted IS NULL\n".
+            " WHERE sua.created = (\n".
             "       SELECT max(created) AS created\n".
             "         FROM session_user_account\n".
             "        WHERE id_user_account = :id\n".
             "          AND method = :method\n".
             "       )\n".
-            "   AND method = :method\n".
-            "   AND id_user_account = :id".
-            "   AND authenticated IS NULL;"
+            "   AND sua.method = :method\n".
+            "   AND sua.id_user_account = :id".
+            "   AND sua.authenticated IS NULL;"
         );
         $stmt->bindValue('id', $data['id']);
         $stmt->bindValue('method', $data['method']);
@@ -371,7 +376,9 @@ class UserService extends BaseService
         $stmt = $this->db->prepare(
             "SELECT ua.*\n".
             "  FROM session_user_account sua\n".
-            "  JOIN user_account ua ON ua.id = sua.id_user_account\n".
+            "  JOIN user_account ua\n".
+            "    ON ua.id = sua.id_user_account\n".
+            "   AND ua.deleted IS NULL\n".
             " WHERE sua.access_token = :access_token"
         );
         $stmt->execute(array('access_token' => $token));
@@ -384,6 +391,12 @@ class UserService extends BaseService
 
     public function delete($id)
     {
+        $stmt = $this->db->prepare(
+            "UPDATE user_account\n".
+            "   SET deleted = now()\n".
+            " WHERE id = :id"
+        );
+        $stmt->execute(array('id' => $id));
     }
 
 }

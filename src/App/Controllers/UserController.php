@@ -42,19 +42,28 @@ class UserController
         }
     }
 
-    public function update($id, Request $request)
+    public function update(Request $request)
     {
+        $post = json_decode($request->getContent(), true);
+        if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
+            return new Response('Invalid Access Token', 403);
+        }
         return new JsonResponse(array(
             "id" => $this->userService->update(
-                $request->get('id'),
-                json_decode($request->getContent(), true)
+                $user['id'],
+                $post
             )
         ));
     }
 
-    public function delete($id)
+    public function delete(Request $request)
     {
-        return new JsonResponse($this->userService->delete($id));
+        $post = json_decode($request->getContent(), true);
+        if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
+            return new Response('Invalid Access Token', 403);
+        }
+        $this->userService->delete($user['id']);
+        return new JsonResponse(true);
     }
 
     public function contact($to, Request $request)

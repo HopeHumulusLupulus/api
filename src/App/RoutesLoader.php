@@ -59,11 +59,11 @@ class RoutesLoader extends Route
                 return $return;
             });
         $api->post('/user', "user.controller:save");
+        $api->put('/user', "user.controller:update");
+        $api->delete('/user', "user.controller:delete");
         $api->post('/user/login/email-token', 'user.controller:login_email_token');
         $api->post('/user/login/email-token/{token}', 'user.controller:login_token_confirm');
         $api->post('/user/login/password', 'user.controller:login_password');
-        $api->put('/user/{id}', "user.controller:update");
-        $api->delete('/user/{id}', "user.controller:delete");
 
         $api->get('/state', "state.controller:getAll");
 

@@ -16,6 +16,7 @@ class UserPassword extends AbstractMigration
     {
         $this->table('user_account')
             ->addColumn('password', 'string', array('null' => true, 'length' => 60))
+            ->addColumn('deleted', 'datetime', array('null' => true))
             ->save();
     }
 }

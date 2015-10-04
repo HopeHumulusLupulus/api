@@ -29,6 +29,9 @@ class PhoneService extends BaseService
                 "            ELSE pua.other_type\n".
                 "        END AS type\n".
                 "  FROM phone_user_account pua\n".
+                "  JOIN user_account ua\n".
+                "    ON ua.id = pua.id_user_account\n".
+                "   AND ua.deleted IS NULL\n".
                 "  LEFT JOIN phone_type pt ON pt.id = pua.id_phone_type\n".
                 ' WHERE '.implode(' AND ', $where)
             );

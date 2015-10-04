@@ -29,6 +29,9 @@ class EmailService extends BaseService
                 "            ELSE eua.other_type\n".
                 "        END AS type\n".
                 "  FROM email_user_account eua\n".
+                "  JOIN user_account ua\n".
+                "    ON ua.id = eua.id_user_account\n".
+                "   AND ua.deleted IS NULL\n".
                 "  LEFT JOIN email_type et ON et.id = eua.id_email_type\n".
                 ' WHERE '.implode(' AND ', $where)
             );
