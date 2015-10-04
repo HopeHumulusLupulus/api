@@ -48,12 +48,11 @@ class UserController
         if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
             return new Response('Invalid Access Token', 403);
         }
-        return new JsonResponse(array(
-            "id" => $this->userService->update(
-                $user['id'],
-                $post
-            )
-        ));
+        if(\is_numeric($response = $this->userService->save($post, $user))) {
+            return new JsonResponse(true);
+        } else {
+            return new Response($response, 403);
+        }
     }
 
     public function delete(Request $request)

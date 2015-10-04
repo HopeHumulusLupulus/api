@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\Response;
+use Doctrine\DBAL\Query\QueryBuilder;
 class UserService extends BaseService
 {
     /**
@@ -216,50 +217,51 @@ class UserService extends BaseService
         }
 
         #gender
-        if(array_key_exists('gender', $user)) {
-            if(!in_array(strtoupper($user['gender']), array('M', 'F'))) {
-                return 'Email already used';
-            }
-        } else {
-        	$user['gender'] = null;
+        if(!array_key_exists('gender', $user)) {
+            $user['gender'] = null;
         }
 
         #birth
         if(!array_key_exists('birth', $user)) {
-        	$user['birth'] = null;
+            $user['birth'] = null;
         }
         return $user;
     }
 
-    public function save($user)
+    public function save($user, $current_data)
     {
         $user = $this->normalize($user);
+        
+        if(!array_key_exists('id', $current_data)) {
+            $current_data['id'] = null;
+        }
+        
         if(!array_key_exists('emails', $user) && array_key_exists('phones', $user)) {
             return 'Phone or email is necessary for create account';
         }
         # Phone
         if(array_key_exists('phones', $user)) {
-            if($this->getPhoneService()->get(array('phones' => $user['phones']))) {
+            if($this->getPhoneService()->get(array('phones' => $user['phones']), $current_data['id'])) {
                 return 'Phone already used';
             }
         }
 
         #email
         if(array_key_exists('emails', $user)) {
-            if($this->getEmailService()->get(array('emails' => $user['emails']))) {
+            if($this->getEmailService()->get(array('emails' => $user['emails']), $current_data['id'])) {
                 return 'Email already used';
             }
         }
         
         # gender
-        if(array_key_exists('gender', $user)) {
+        if($user['gender']) {
             if(!in_array(strtoupper($user['gender']), array('M', 'F'))) {
                 return 'Invalid gender';
             }
         }
         
         # birth
-        if(array_key_exists('birth', $user)) {
+        if($user['birth']) {
             $user['birth'] = \DateTime::createFromFormat('Y-m-d', $user['birth']);
             if(!$user['birth']) {
                 return 'Invalid birth';
@@ -280,19 +282,71 @@ class UserService extends BaseService
             if(strlen($user['password']) < 6) {
                 return 'Password is not allowed under 6 characters';
             }
-            $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
+            if(isset($current_data['password'])) {
+                if(!password_verify($user['password'], $current_data['password'])) {
+                    $user['password'] = $open_password = password_hash($user['password'], PASSWORD_DEFAULT);
+                } else {
+                    $user['password'] = $current_data['password'];
+                }
+            } else {
+                $user['password'] = $open_password = password_hash($user['password'], PASSWORD_DEFAULT);
+            }
         }
 
         # User Account
-        $this->db->insert("user_account", array(
-            'name'   => $user['name'],
-            'gender' => strtoupper($user['gender']) ? : null,
-            'birth'  => $user['birth'],
-            'password' => $user['password'] ? : null
-        ));
-        $id = $this->db->lastInsertId('user_account_id_seq');
+        if($current_data['id']) {
+            $data = [];
+            if($user['gender'] != $current_data['gender']) {
+                $data['gender'] = $user['gender'];
+            }
+            if($user['password'] != $current_data['password']) {
+                $data['password'] = $user['password'];
+            }
+            if($user['birth'] != $current_data['birth']) {
+                $data['birth'] = $user['birth'];
+            }
+            if($data) {
+                $this->db->update('user_account', $data, array('id' => $current_data['id']));
+            }
+        } else {
+            $this->db->insert("user_account", array(
+                'name'   => $user['name'],
+                'gender' => strtoupper($user['gender']) ? : null,
+                'birth'  => $user['birth'],
+                'password' => $user['password'] ? : null
+            ));
+            $id = $this->db->lastInsertId('user_account_id_seq');
+        }
         # Phone
         if(array_key_exists('phones', $user)) {
+            if($current_data['id']) {
+                $stmt = $this->db->prepare(
+                    "SELECT id, id_phone_type, number, other_type\n".
+                    "  FROM phone_user_account\n".
+                    " WHERE id_user_account = :id"
+                );
+                if($stmt->execute(array('id' => $current_data['id']))) {
+                    while($_number = $stmt->fetch()) {
+                        $old[$_number['id']] = $_number;
+                        foreach($user['phones'] as $pos => $number) {
+                            if($number['number'] == $_number['number']) {
+                                if($number['id_phone_type'] == $_number['id_phone_type']) {
+                                    if($number['other_type'] == $_number['other_type']) {
+                                        unset($user['phones'][$pos]);
+                                        array_pop($old);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if($old) {
+                        $qb = $this->db->createQueryBuilder();
+                        $qb->delete('phone_user_account', 'pua')
+                            ->where($qb->expr()->in('pua.id', array_keys($old)))
+                            ->execute();
+                    }
+                }
+            }
             foreach($user['phones'] as $phone) {
                 $phone['id_user_account'] = $id;
                 $this->db->insert("phone_user_account", $phone);
@@ -300,6 +354,34 @@ class UserService extends BaseService
         }
         # Email
         if(array_key_exists('emails', $user)) {
+            if($current_data['id']) {
+                $stmt = $this->db->prepare(
+                    "SELECT id, id_email_type, email, other_type\n".
+                    "  FROM email_user_account\n".
+                    " WHERE id_user_account = :id"
+                );
+                if($stmt->execute(array('id' => $current_data['id']))) {
+                    while($_email = $stmt->fetch()) {
+                        $old[$_email['id']] = $_email;
+                        foreach($user['emails'] as $pos => $email) {
+                            if($email['email'] == $_email['email']) {
+                                if($email['id_email_type'] == $_email['id_email_type']) {
+                                    if($email['other_type'] == $_email['other_type']) {
+                                        unset($user['emails'][$pos]);
+                                        array_pop($old);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if($old) {
+                        $qb = $this->db->createQueryBuilder();
+                        $qb->delete('email_user_account', 'eua')
+                            ->where($qb->expr()->in('eua.id', array_keys($old)))
+                            ->execute();
+                    }
+                }
+            }
             foreach($user['emails'] as $email) {
                 $email['id_user_account'] = $id;
                 $this->db->insert("email_user_account", $email);
