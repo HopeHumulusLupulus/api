@@ -14,8 +14,6 @@ class SessionAccount extends AbstractMigration
      */
     public function change()
     {
-        $schema = getenv('PHINX_SCHEMA');
-        $this->query('SET search_path TO '.$schema);
         $session_user_account = $this->table('session_user_account');
         $session_user_account
             ->addColumn('id_user_account', 'integer')

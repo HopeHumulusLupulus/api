@@ -22,8 +22,6 @@ class Ranking extends AbstractMigration
      */
     public function up()
     {
-        $schema = getenv('PHINX_SCHEMA');
-        $this->query('SET search_path TO '.$schema);
         $pin_ranking_type = $this->table('pin_ranking_type')
             ->addColumn('type', 'string', array('limit' => 150))
             ->addColumn('code', 'string', array('limit' => 20));
@@ -63,8 +61,6 @@ class Ranking extends AbstractMigration
      */
     public function down()
     {
-        $schema = getenv('PHINX_SCHEMA');
-        $this->query('SET search_path TO '.$schema);
         $this->dropTable('pin_checkin');
         $this->dropTable('pin_ranking');
         $this->dropTable('pin_ranking_type');

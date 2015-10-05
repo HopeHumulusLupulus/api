@@ -22,8 +22,6 @@ class Contact extends AbstractMigration
      */
     public function up()
     {
-        $schema = getenv('PHINX_SCHEMA');
-        $this->query('SET search_path TO '.$schema);
         $contact = $this->table('contact')
             ->addColumn('name', 'string', array('limit' => 50))
             ->addColumn('email', 'string', array('limit' => 50))
@@ -38,8 +36,6 @@ class Contact extends AbstractMigration
      */
     public function down()
     {
-        $schema = getenv('PHINX_SCHEMA');
-        $this->query('SET search_path TO '.$schema);
         $this->dropTable('contact');
     }
 }

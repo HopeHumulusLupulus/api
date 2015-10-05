@@ -14,8 +14,6 @@ class UserPassword extends AbstractMigration
      */
     public function change()
     {
-        $schema = getenv('PHINX_SCHEMA');
-        $this->query('SET search_path TO '.$schema);
         $this->table('user_account')
             ->addColumn('password', 'string', array('null' => true, 'length' => 60))
             ->addColumn('deleted', 'datetime', array('null' => true))
