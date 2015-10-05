@@ -20,6 +20,7 @@ environments:
         user: %%PHINX_USER%%
         pass: %%PHINX_PASS%%
         port: %%PHINX_PORT%%
+        schema: %%PHINX_SCHEMA%%
         charset: %%PHINX_CHARSET%%
 
     testing:

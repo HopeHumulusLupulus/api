@@ -22,6 +22,9 @@ class First extends AbstractMigration
      */
     public function up()
     {
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('CREATE SCHEMA IF NOT EXISTS '.$schema);
+        $this->query('SET search_path TO '.$schema);
         $country = $this->table('country')
             ->addColumn('name', 'string', array('limit' => 50))
             ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'));
@@ -1452,5 +1455,7 @@ SELECT setval('phone_pin_id_seq', (SELECT MAX(id) FROM phone_pin));
         $this->dropTable('state');
         $this->dropTable('country');
         $this->dropTable('user_account');
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('DROP SCHEMA IF EXISTS '.$schema);
     }
 }

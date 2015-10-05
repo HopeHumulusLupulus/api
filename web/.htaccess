@@ -11,6 +11,7 @@
     SetEnv DB_USER postgres
     SetEnv DB_PASSWORD postgres
     SetEnv DB_CHARSET utf-8
+    SetEnv DB_SCHEMA develop
     SetEnv EMAIL_CONTACT teste@lupulocalizador.com
     SetEnv APP_ENV dev
 </IfModule>

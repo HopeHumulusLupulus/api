@@ -9,5 +9,6 @@ $app['db'] = array(
     'host'     => getenv('db_host'),
     'user'     => getenv('db_user'),
     'password' => getenv('db_password'),
-    'charset' => 'UTF8'
+    'schema'   => getenv('db_schema'),
+    'charset'  => 'UTF8'
 );

@@ -55,6 +55,10 @@ $app->register(new ServiceControllerServiceProvider());
 
 $app->register(new DoctrineServiceProvider(), array("db.options" => $app['db']));
 
+if($app['db.options']['schema']) {
+    $app['db']->query('SET search_path TO '.$app['db.options']['schema']);
+}
+
 $app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . "/storage/cache",));
 
 $app->register(new MonologServiceProvider(), array(
