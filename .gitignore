@@ -1,0 +1,15 @@
+vendor
+.DS_Store
+app/logs/*.log
+.idea
+*.sqlite
+
+# IDE
+# Eclipse
+.project
+.settings
+.buildpath
+
+# IDE
+# Gedit
+*~

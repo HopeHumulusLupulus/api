@@ -1,0 +1,36 @@
+{
+	"name" : "vitormattos/tasca",
+	"type" : "library",
+	"description" : "Mapa Cervejeiro",
+	"keywords" : [
+		"framework",
+		"silex",
+		"rest",
+		"api"
+	],
+	"homepage" : "http://github.com/vitormattos/tasca",
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "Vitor Mattos",
+			"email" : "vitor.mattos@phprio.org"
+		}
+	],
+	"require" : {
+		"silex/silex" : "1.2.*dev",
+		"monolog/monolog" : "1.12.*@dev",
+		"doctrine/dbal" : "2.5.1",
+		"robmorgan/phinx" : "dev-master",
+		"nesbot/carbon" : "dev-master",
+		"cocur/slugify" : "dev-master",
+		"swiftmailer/swiftmailer": "^5.4"
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "4.6.*@dev",
+		"mockery/mockery" : "0.9.*@dev"
+	},
+	"autoload" : {
+		"psr-0" : {
+			"App" : "src/"
+		}
+	}
+}
