@@ -6,6 +6,8 @@ class StateAbbreviation extends AbstractMigration
 {
     public function up()
     {
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('SET search_path TO '.$schema);
         $state = $this->table('state')
             ->addColumn('abbreviation', 'string', array('limit' => 2, 'null' => true));
         $state->save();
@@ -46,6 +48,8 @@ class StateAbbreviation extends AbstractMigration
 
     public function down()
     {
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('SET search_path TO '.$schema);
         $this->execute("DELETE FROM state WHERE abbreviation = 'TO';");
 
         $state = $this->table('state')

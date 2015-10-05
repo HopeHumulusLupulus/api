@@ -22,6 +22,8 @@ class UserAccount extends AbstractMigration
      */
     public function up()
     {
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('SET search_path TO '.$schema);
     	$user_account = $this->table('user_account')
 	    	->addColumn('gender', 'string', array('limit' => 1,'null' => true))
 	    	->addColumn('birth', 'date', array('null' => true));
@@ -33,6 +35,8 @@ class UserAccount extends AbstractMigration
      */
     public function down()
     {
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('SET search_path TO '.$schema);
     	$user_account = $this->table('user_account')
     		->removeColumn('gender')
     		->removeColumn('birth');

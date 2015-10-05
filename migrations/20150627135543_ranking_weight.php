@@ -22,6 +22,8 @@ class RankingWeight extends AbstractMigration
      */
     public function up()
     {
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('SET search_path TO '.$schema);
         $pin_ranking_type = $this->table('pin_ranking_type')
             ->addColumn('weight', 'integer', array('null' => true))
             ->addColumn('enabled', 'boolean', array('null' => true));
@@ -46,6 +48,8 @@ class RankingWeight extends AbstractMigration
      */
     public function down()
     {
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('SET search_path TO '.$schema);
         $this->table('pin_ranking_type')
             ->removeColumn('weight')
             ->removeColumn('enabled')

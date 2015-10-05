@@ -14,11 +14,15 @@ class VariedadeCervejas extends AbstractMigration
      */
     public function up()
     {
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('SET search_path TO '.$schema);
         $this->execute("UPDATE pin_ranking_type SET type= 'Variedade de cerveja' WHERE code = 'variety_beer';");
     }
 
     public function down()
     {
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('SET search_path TO '.$schema);
         $this->execute("UPDATE pin_ranking_type SET type= 'variedade de cerveja' WHERE code = 'variety_beer';");
     }
 }

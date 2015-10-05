@@ -602,6 +602,8 @@ SELECT setval('district_id_seq', (SELECT MAX(id) FROM district));
      */
     public function down()
     {
+        $schema = getenv('PHINX_SCHEMA');
+        $this->query('SET search_path TO '.$schema);
         $this->dropTable('phone_user_account');
         $this->dropTable('address_user_account');
         $this->dropTable('address_type');
