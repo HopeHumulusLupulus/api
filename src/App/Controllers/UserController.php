@@ -37,7 +37,7 @@ class UserController
                 $method = 'login_' . $this->app['slugify']->slugify($user['method'], '_');
                 $this->$method($request, $user);
             } else {
-                $this->db->insert('session_user_account', array(
+                $access_token = $this->userService->requestToken(array(
                     'id_user_account' => $id,
                     'method' => $user['method']?:'password',
                     'attempts' => 1,
@@ -101,9 +101,10 @@ class UserController
                 return new Response('Invalid user', 403);
             }
         }
-        $data['id'] = $user['code'];
-        $data['method'] = 'email-token';
-        $token = $this->userService->requestToken($data);
+        $token = $this->userService->requestToken([
+            'id_user_account' => $user['code'],
+            'method' => 'email-token'
+        ]);
         $message = \Swift_Message::newInstance()
             ->setSubject('Lupulocalizador Token')
             ->setFrom(array($this->app['email_contact'] => 'Lupulocalizador'))
