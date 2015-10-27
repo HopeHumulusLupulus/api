@@ -41,7 +41,7 @@ class UserController
                     'id_user_account' => $id,
                     'method' => $user['method']?:'password',
                     'attempts' => 1,
-                    'access_token' => bin2hex(openssl_random_pseudo_bytes(20)),
+                    'access_token' => $access_token = bin2hex(openssl_random_pseudo_bytes(20)),
                     'authenticated' => date('Y-m-d H:i:s.u')
                 ));
             }
