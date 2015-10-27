@@ -32,14 +32,14 @@ class UserController
             $id = $this->userService->save(
                 $user = json_decode($request->getContent(), true)
             );
-            if($user['method'] && !isset($user['password'])) {
+            if(isset($user['method']) && $user['method'] && !isset($user['password'])) {
                 $user['code'] = $id;
                 $method = 'login_' . $this->app['slugify']->slugify($user['method'], '_');
                 $this->$method($request, $user);
             } else {
                 $access_token = $this->userService->requestToken(array(
                     'id_user_account' => $id,
-                    'method' => $user['method']?:'password',
+                    'method' => isset($user['method']) && $user['method'] ? $user['method'] : 'password',
                     'attempts' => 1,
                     'access_token' => $access_token = bin2hex(openssl_random_pseudo_bytes(20)),
                     'authenticated' => date('Y-m-d H:i:s.u')
