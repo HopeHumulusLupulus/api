@@ -237,26 +237,26 @@ class UserService extends BaseService
         }
         
         if(!array_key_exists('emails', $user) && array_key_exists('phones', $user)) {
-            return 'Phone or email is necessary for create account';
+            throw new \Exception('Phone or email is necessary for create account');
         }
         # Phone
         if(array_key_exists('phones', $user)) {
             if($this->getPhoneService()->get(array('phones' => $user['phones']), $current_data['id'])) {
-                return 'Phone already used';
+                throw new \Exception('Phone already used');
             }
         }
 
         #email
         if(array_key_exists('emails', $user)) {
             if($this->getEmailService()->get(array('emails' => $user['emails']), $current_data['id'])) {
-                return 'Email already used';
+                throw new \Exception('Email already used');
             }
         }
         
         # gender
         if($user['gender']) {
             if(!in_array(strtoupper($user['gender']), array('M', 'F'))) {
-                return 'Invalid gender';
+                throw new \Exception('Invalid gender');
             }
         }
         
@@ -264,12 +264,12 @@ class UserService extends BaseService
         if($user['birth']) {
             $user['birth'] = \DateTime::createFromFormat('Y-m-d', $user['birth']);
             if(!$user['birth']) {
-                return 'Invalid birth';
+                throw new \Exception('Invalid birth');
             } else {
                 $eighteen = new \DateTime();
                 $eighteen->sub(new \DateInterval('P18Y'));
                 if($user['birth'] > $eighteen) {
-                    return 'Only allowed to 18 years';
+                    throw new \Exception('Only allowed to 18 years');
                 }
                 $user['birth'] = $user['birth']->format('Y-m-d');
             }
@@ -277,10 +277,10 @@ class UserService extends BaseService
         
         if(array_key_exists('password', $user)) {
             if(!is_string($user['password'])) {
-                return 'Password must be a string';
+                throw new \Exception('Password must be a string');
             }
             if(strlen($user['password']) < 6) {
-                return 'Password is not allowed under 6 characters';
+                throw new \Exception('Password is not allowed under 6 characters');
             }
             if(isset($current_data['password'])) {
                 if(!password_verify($user['password'], $current_data['password'])) {
