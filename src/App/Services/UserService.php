@@ -402,11 +402,10 @@ class UserService extends BaseService
     
     public function requestToken($data)
     {
-        $this->db->insert('session_user_account', array(
-            'id_user_account' => $data['id'],
-            'method' => $data['method'],
-            'token' => $token = mt_rand(1000000,9999999)
-        ));
+        if(!isset($data['authenticated'])) {
+            $data['token'] = mt_rand(1000000,9999999);
+        }
+        $this->db->insert('session_user_account', $data);
         return $token;
     }
     
