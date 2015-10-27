@@ -109,7 +109,7 @@ class UserController
             ->setSubject('Lupulocalizador Token')
             ->setFrom(array($this->app['email_contact'] => 'Lupulocalizador'))
             ->setTo(array($data['email'] => $data['name']))
-            ->setBody("Olá, seu token é: $token\n informe no aplicativo");
+            ->setBody("Olá, seu token é: {$token['token']}\n informe no aplicativo");
         $result = $this->app['mailer']->send($message);
         return new JsonResponse(true);
     }
