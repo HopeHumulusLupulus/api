@@ -28,17 +28,26 @@ class UserController
 
     public function save(Request $request)
     {
-        if(\is_numeric($response = $this->userService->save(
-            $user = json_decode($request->getContent(), true)
-        ))) {
-            $user['code'] = $response;
+        try {
+            $id = $this->userService->save(
+                $user = json_decode($request->getContent(), true)
+            );
             if($user['method'] && !isset($user['password'])) {
+                $user['code'] = $id;
                 $method = 'login_' . $this->app['slugify']->slugify($user['method'], '_');
                 $this->$method($request, $user);
+            } else {
+                $this->db->insert('session_user_account', array(
+                    'id_user_account' => $id,
+                    'method' => $user['method']?:'password',
+                    'attempts' => 1,
+                    'access_token' => bin2hex(openssl_random_pseudo_bytes(20)),
+                    'authenticated' => date('Y-m-d H:i:s.u')
+                ));
             }
-            return new JsonResponse(array("id" => $response));
-        } else {
-            return new Response($response, 403);
+            return new JsonResponse(array("access-token" => $access_token));
+        } catch (\Exception $e) {
+            return new Response($e->getMessage(), 403);
         }
     }
 
@@ -48,10 +57,11 @@ class UserController
         if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
             return new Response('Invalid Access Token', 403);
         }
-        if(\is_numeric($response = $this->userService->save($post, $user))) {
+        try {
+            $this->userService->save($post, $user);
             return new JsonResponse(true);
-        } else {
-            return new Response($response, 403);
+        } catch(\Exception $e) {
+            return new Response($e->getMessage(), 403);
         }
     }
 
