@@ -406,7 +406,7 @@ class UserService extends BaseService
             $data['token'] = mt_rand(1000000,9999999);
         }
         $this->db->insert('session_user_account', $data);
-        return $data['token'];
+        return $data;
     }
     
     public function validateToken($data)
