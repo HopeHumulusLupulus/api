@@ -228,7 +228,7 @@ class UserService extends BaseService
         return $user;
     }
 
-    public function save($user, $current_data)
+    public function save($user, $current_data = array())
     {
         $user = $this->normalize($user);
         
