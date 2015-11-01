@@ -9,6 +9,9 @@ if(!isset($matches['version'])) {
     $app->abort('403', 'Invalid version');
 }
 define('VERSION', $matches['version']);
+if(VERSION < 1) {
+    $app->abort('403', 'Upgrade app to new version');
+}
 $loader->set('App', ROOT_PATH . '/v'.VERSION.'/src');
 require ROOT_PATH . '/v'.VERSION.'/src/app.php';
 

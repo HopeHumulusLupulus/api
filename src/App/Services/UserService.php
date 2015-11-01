@@ -255,7 +255,7 @@ class UserService extends BaseService
         
         # gender
         if($user['gender']) {
-            if(!in_array(strtoupper($user['gender']), array('M', 'F'))) {
+            if(!in_array(strtoupper($user['gender']), array('M', 'F', 'U'))) {
                 throw new \Exception('Invalid gender');
             }
         }

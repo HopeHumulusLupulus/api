@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\ServicesLoader;
 use App\RoutesLoader;
-use Carbon\Carbon;
 
 date_default_timezone_set('America/Sao_Paulo');
 
@@ -47,6 +46,7 @@ $app->before(function (Request $request) {
         $data = json_decode($request->getContent(), true);
         $request->request->replace(is_array($data) ? $data : array());
     }
+    
 });
 
 $app->register(new ServiceControllerServiceProvider());
@@ -60,7 +60,7 @@ if($app['db.options']['schema']) {
 $app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . '/v'.VERSION.'/storage/cache'));
 
 $app->register(new MonologServiceProvider(), array(
-    "monolog.logfile" => ROOT_PATH . '/v'.VERSION.'/storage/logs/' . Carbon::now('Europe/London')->format("Y-m-d") . ".log",
+    "monolog.logfile" => ROOT_PATH . '/v'.VERSION.'/storage/logs/' . date('Y-m-d') . ".log",
     "monolog.level" => $app["log.level"],
     "monolog.name" => "application"
 ));
