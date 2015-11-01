@@ -12,12 +12,3 @@ $app['db'] = array(
     'schema'   => getenv('DB_SCHEMA'),
     'charset'  => getenv('DB_CHARSET')
 );
-$app['swiftmailer.options'] = array(
-    'host' => 'smtp.gmail.com',
-    'port' => '465',
-    'username' => 'username',
-    'password' => 'password',
-    'encryption' => 'ssl',
-    'auth_mode' => 'login'
-);
-$app['swiftmailer.use_spool'] = false;

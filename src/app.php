@@ -57,10 +57,10 @@ if($app['db.options']['schema']) {
     $app['db']->query('SET search_path TO '.$app['db.options']['schema']);
 }
 
-$app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . "/storage/cache",));
+$app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . '/v'.VERSION.'/storage/cache'));
 
 $app->register(new MonologServiceProvider(), array(
-    "monolog.logfile" => ROOT_PATH . "/storage/logs/" . Carbon::now('Europe/London')->format("Y-m-d") . ".log",
+    "monolog.logfile" => ROOT_PATH . '/v'.VERSION.'/storage/logs/' . Carbon::now('Europe/London')->format("Y-m-d") . ".log",
     "monolog.level" => $app["log.level"],
     "monolog.name" => "application"
 ));
