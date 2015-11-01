@@ -16,7 +16,7 @@ date_default_timezone_set('America/Sao_Paulo');
 
 $env = getenv('APP_ENV') ?: 'prod';
 
-require ROOT_PATH . '/resources/config/'.$env.'.php';
+require ROOT_PATH . '/v'.VERSION.'/resources/config/'.$env.'.php';
 
 //handling CORS preflight request
 $app->before(function (Request $request, $app) {
