@@ -1,6 +1,6 @@
 <?php
 
-define('ROOT_PATH', dirname(dirname(__FILE__)));
+define('ROOT_PATH', dirname(dirname(dirname(__FILE__))));
 $loader = require_once ROOT_PATH . '/vendor/autoload.php';
 
 $app = new Silex\Application();
