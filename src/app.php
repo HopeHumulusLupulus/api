@@ -14,8 +14,6 @@ use Carbon\Carbon;
 
 date_default_timezone_set('America/Sao_Paulo');
 
-define('ROOT_PATH', __DIR__ . "/..");
-
 $env = getenv('APP_ENV') ?: 'prod';
 
 require ROOT_PATH . '/resources/config/'.$env.'.php';
