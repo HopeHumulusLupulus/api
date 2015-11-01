@@ -70,7 +70,7 @@ class RoutesLoader extends Route
         $api->post('/contact', "user.controller:contact")
             ->value('to', $this->app['email_contact']);
 
-        $this->app->mount($this->app["api.endpoint"].'/'.$this->app["api.version"], $api);
+        $this->app->mount('/'.$this->app["api.version"], $api);
     }
 }
 
