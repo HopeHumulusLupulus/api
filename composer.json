@@ -32,5 +32,16 @@
 		"psr-0" : {
 			"App" : "src/"
 		}
+	},
+	"config": {
+	   "vendor-dir": "../vendor"
+    },
+	"scripts": {
+        "post-install-cmd": [
+            "ln -sf $(pwd)/web ../"
+        ],
+        "post-update-cmd": [
+            "ln -sf $(pwd)/web ../"
+        ]
 	}
 }

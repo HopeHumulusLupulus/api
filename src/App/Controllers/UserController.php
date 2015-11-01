@@ -32,12 +32,12 @@ class UserController
             $id = $this->userService->save(
                 $user = json_decode($request->getContent(), true)
             );
+            $user = $this->userService->get($user);
             if(isset($user['method']) && $user['method'] && !isset($user['password'])) {
-                $user['code'] = $id;
                 $method = 'login_' . $this->app['slugify']->slugify($user['method'], '_');
                 $this->$method($request, $user);
             } else {
-                $access_token = $this->userService->requestToken(array(
+                $user['access-token'] = $this->userService->requestToken(array(
                     'id_user_account' => $id,
                     'method' => isset($user['method']) && $user['method'] ? $user['method'] : 'password',
                     'attempts' => 1,
@@ -45,7 +45,7 @@ class UserController
                     'authenticated' => date('Y-m-d H:i:s.u')
                 ));
             }
-            return new JsonResponse(array("access-token" => $access_token['access_token']));
+            return new JsonResponse($user);
         } catch (\Exception $e) {
             return new Response($e->getMessage(), 403);
         }
