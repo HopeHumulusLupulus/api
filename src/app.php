@@ -14,11 +14,9 @@ use Carbon\Carbon;
 
 date_default_timezone_set('America/Sao_Paulo');
 
-define('ROOT_PATH', __DIR__ . "/..");
-
 $env = getenv('APP_ENV') ?: 'prod';
 
-require ROOT_PATH . '/resources/config/'.$env.'.php';
+require ROOT_PATH . '/v'.VERSION.'/resources/config/'.$env.'.php';
 
 //handling CORS preflight request
 $app->before(function (Request $request, $app) {
@@ -59,10 +57,10 @@ if($app['db.options']['schema']) {
     $app['db']->query('SET search_path TO '.$app['db.options']['schema']);
 }
 
-$app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . "/storage/cache",));
+$app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . '/v'.VERSION.'/storage/cache'));
 
 $app->register(new MonologServiceProvider(), array(
-    "monolog.logfile" => ROOT_PATH . "/storage/logs/" . Carbon::now('Europe/London')->format("Y-m-d") . ".log",
+    "monolog.logfile" => ROOT_PATH . '/v'.VERSION.'/storage/logs/' . Carbon::now('Europe/London')->format("Y-m-d") . ".log",
     "monolog.level" => $app["log.level"],
     "monolog.name" => "application"
 ));
