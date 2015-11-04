@@ -25,7 +25,7 @@ class UserService extends BaseService
             switch($field) {
                 case 'email':
                     $where[] = 'eua.email = :email';
-                    $data[$field] = $value;
+                    $data[$field] = strtolower($value);
                     break;
                 case 'phone':
                     $where[] = 'pua.number = :number';
@@ -88,7 +88,7 @@ class UserService extends BaseService
             switch($field) {
                 case 'email':
                     $where[] = 'eua.email = :email';
-                    $data[$field] = $value;
+                    $data[$field] = strtolower($value);
                     $join[] = 'JOIN email_user_account eua ON eua.id_user_account = ua.id';
                     break;
                 case 'phone':
@@ -364,7 +364,7 @@ class UserService extends BaseService
                     while($_email = $stmt->fetch()) {
                         $old[$_email['id']] = $_email;
                         foreach($user['emails'] as $pos => $email) {
-                            if($email['email'] == $_email['email']) {
+                            if(strtolower($email['email']) == $_email['email']) {
                                 if($email['id_email_type'] == $_email['id_email_type']) {
                                     if($email['other_type'] == $_email['other_type']) {
                                         unset($user['emails'][$pos]);
