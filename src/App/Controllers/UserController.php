@@ -44,7 +44,7 @@ class UserController
                     'access_token' => bin2hex(openssl_random_pseudo_bytes(20)),
                     'authenticated' => date('Y-m-d H:i:s.u')
                 ));
-                $user['access-token'] = $user['access-token']['access_token']
+                $user['access-token'] = $user['access-token']['access_token'];
             }
             return new JsonResponse($user);
         } catch (\Exception $e) {
