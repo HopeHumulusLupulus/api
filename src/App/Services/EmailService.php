@@ -12,7 +12,7 @@ class EmailService extends BaseService
             foreach($param['emails'] as $email) {
                 foreach($email as $key => $value) {
                     $where[] = 'eua.'.$key.' = :'.$key.'_'.$i;
-                    $data[$key.'_'.$i] = $value;
+                    $data[$key.'_'.$i] = strtolower($value);
                     $i++;
                 }
             }
@@ -45,6 +45,7 @@ class EmailService extends BaseService
     }
 
     public function save($email) {
+        $email['email'] = $email['email'];
         $this->db->insert("email_user_account", $email);
         return $this->db->lastInsertId('email_user_account_id_seq');
     }
