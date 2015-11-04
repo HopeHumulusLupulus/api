@@ -80,8 +80,10 @@ class UserController
         if(\is_numeric($response = $this->userService->contact(
             $data = json_decode($request->getContent(), true)
         ))) {
-            $telegram = new \Zyberspace\Telegram\Cli\Client('tcp://localhost:2015');
-            $telegram->msg('user#37900977', print_r($data, true));
+            try{
+                $telegram = new \Zyberspace\Telegram\Cli\Client('tcp://localhost:2015');
+                $telegram->msg('chat#12270086', print_r($data, true));
+            } catch(Exception $e) { }
             $message = \Swift_Message::newInstance()
                 ->setSubject('Contato')
                 ->setFrom(array($data['email'] => $data['name']))
