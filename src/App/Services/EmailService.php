@@ -45,7 +45,7 @@ class EmailService extends BaseService
     }
 
     public function save($email) {
-        $email['email'] = $email['email'];
+        $email['email'] = strtolower(trim($email['email']));
         $this->db->insert("email_user_account", $email);
         return $this->db->lastInsertId('email_user_account_id_seq');
     }
