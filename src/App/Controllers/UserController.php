@@ -80,6 +80,8 @@ class UserController
         if(\is_numeric($response = $this->userService->contact(
             $data = json_decode($request->getContent(), true)
         ))) {
+            $telegram = new \Zyberspace\Telegram\Cli\Client('tcp://localhost:2015');
+            $telegram->msg('user#37900977', print_r($data, true));
             $message = \Swift_Message::newInstance()
                 ->setSubject('Contato')
                 ->setFrom(array($data['email'] => $data['name']))
@@ -113,7 +115,7 @@ class UserController
         $result = $this->app['mailer']->send($message);
         return new JsonResponse(true);
     }
-    
+
     public function login_token_confirm($token, Request $request)
     {
         $data = json_decode($request->getContent(), true);
@@ -133,8 +135,8 @@ class UserController
             return new Response('Invalid token', 403);
         }
     }
-    
-    public function login_password(Request $request) 
+
+    public function login_password(Request $request)
     {
         $post = json_decode($request->getContent(), true);
         if($access_token = $this->userService->loginByPassword($post)) {
