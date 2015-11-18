@@ -21,6 +21,9 @@ class RoutesLoader extends Route
 
     private function instantiateControllers()
     {
+        $this->app['doc.controller'] = $this->app->share(function () {
+            return new Controllers\DocController($this->app);
+        });
         $this->app['pins.controller'] = $this->app->share(function () {
             return new Controllers\PinsController($this->app);
         });
@@ -37,6 +40,8 @@ class RoutesLoader extends Route
     public function bindRoutesToControllers()
     {
         $api = $this->app["controllers_factory"];
+        
+        $api->get('/doc', "doc.controller:get");
 
         # pins
         $api->get('/pins', "pins.controller:getAll");

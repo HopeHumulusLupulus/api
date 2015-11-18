@@ -47,16 +47,21 @@ class PinsController
 
     public function save(Request $request)
     {
-        $post = json_decode($request->getContent(), true);
-        if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
-            return new Response('Invalid Access Token', 403);
-        }
-        unset($post['access-token']);
-        $post['created_by'] = $user['id'];
-        if(\is_numeric($response = $this->pinsService->save($post))) {
-            return new JsonResponse(array("id" => $response));
-        } else {
-            return new Response($response, 403);
+        try {
+            $post = json_decode($request->getContent(), true);
+            if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
+                return new Response('Invalid Access Token', 403);
+            }
+            unset($post['access-token']);
+            $post['created_by'] = $user['id'];
+            
+            if(\is_numeric($response = $this->pinsService->save($post))) {
+                return new JsonResponse(array("id" => $response));
+            } else {
+                return new Response($response, 403);
+            }
+        } catch (\Exception $e) {
+            return new Response($e->getMessage(), 403);
         }
     }
 

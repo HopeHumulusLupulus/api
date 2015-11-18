@@ -11,7 +11,7 @@ use App\Services\UserService;
 class UserController
 {
 
-    /**
+    /**659349
      * @var UserService
      */
     protected $userService;
@@ -21,6 +21,12 @@ class UserController
         $this->userService = $service;
     }
 
+    /**
+     * @SWG\Get(
+     *     path="/user/get",
+     *     @SWG\Response(response="200", description="An example resource")
+     * )
+     */
     public function get(Request $request, $args)
     {
         return new JsonResponse($this->userService->get($args));
