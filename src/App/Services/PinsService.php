@@ -172,7 +172,7 @@ SELECT pin.id AS id_pin,
                             $address['state'] = $component['long_name'];
                         } elseif (in_array('country', $types)) {
                             $address['country'] = $component['long_name'];
-                        } elseif (in_array('neighborhood', $types)) {
+                        } elseif (in_array('neighborhood', $types) || in_array('sublocality', $types)) {
                             $address['district'] = $component['long_name'];
                         }
                     }
