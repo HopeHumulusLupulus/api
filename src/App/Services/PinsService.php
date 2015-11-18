@@ -202,7 +202,7 @@ SELECT pin.id AS id_pin,
         }
         if(!isset($pin['id_district']) || !$pin['id_district']) {
             $address = $this->getAddressData($pin['lat'], $pin['lng']);
-            if(count($address) <=4) {
+            if(count($address) <=3) {
                 throw new \Exception('Location dont return a complete address (country, state, city, district)');
             }
             if(!$pin['address']) {
@@ -249,19 +249,21 @@ SELECT pin.id AS id_pin,
             }
             $pin['id_city'] = $city['id'];
             # District
-            $this->district = new DistrictService($this->db);
-            $district = $this->district->getDistrict(array(
-                'name' => $address['district'],
-                'id_city' => $city['id']
-            ));
-            if(!$district) {
-                $district = array(
+            if(isset($address['district'])) {
+                $this->district = new DistrictService($this->db);
+                $district = $this->district->getDistrict(array(
                     'name' => $address['district'],
                     'id_city' => $city['id']
-                );
-                $district['id'] = $this->district->save($district);
+                ));
+                if(!$district) {
+                    $district = array(
+                        'name' => $address['district'],
+                        'id_city' => $city['id']
+                    );
+                    $district['id'] = $this->district->save($district);
+                }
+                $pin['id_district'] = $district['id'];
             }
-            $pin['id_district'] = $district['id'];
         } else {
             $this->district = new DistrictService($this->db);
             $district = $this->district->getDistrict(array('id' => $pin['id_district']));

@@ -12,12 +12,12 @@ class SessionAccount extends AbstractMigration
      * More information on writing migrations is available here:
      * http://docs.phinx.org/en/latest/migrations.html#the-abstractmigration-class
      */
-    public function change()
+    public function up()
     {
         $session_user_account = $this->table('session_user_account');
         $session_user_account
             ->addColumn('id_user_account', 'integer')
-            ->addColumn('method', 'enum', array('values' => array('email-token', 'sms-token', 'password')))
+            ->addColumn('method', 'char', array('limit' => 11))
             ->addColumn('token', 'char', array('limit' => 7, 'null' => true))
             ->addColumn('attempts', 'integer', array('default' => 0))
             ->addColumn('access_token', 'char', array('limit' => 40, 'null' => true))
@@ -25,5 +25,10 @@ class SessionAccount extends AbstractMigration
             ->addColumn('authenticated', 'datetime', array('null' => true))
             ->addForeignKey('id_user_account', 'user_account', 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $session_user_account->save();
+    }
+
+    public function down()
+    {
+        $this->table('session_user_account')->drop();
     }
 }
