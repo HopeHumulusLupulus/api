@@ -1,6 +1,6 @@
 <?php
 $app['log.level'] = Monolog\Logger::ERROR;
-$app['api.version'] = 'v'.VERSION;
+$app['api.version'] = 'v' . VERSION;
 $app['email_contact'] = getenv('EMAIL_CONTACT');
 $app['db'] = array(
     'driver'   => 'pdo_pgsql',

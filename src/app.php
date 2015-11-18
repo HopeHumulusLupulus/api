@@ -15,7 +15,7 @@ date_default_timezone_set('America/Sao_Paulo');
 
 $env = getenv('APP_ENV') ?: 'prod';
 
-require ROOT_PATH . '/v'.VERSION.'/resources/config/'.$env.'.php';
+require ROOT_PATH . '/resources/config/'.$env.'.php';
 
 //handling CORS preflight request
 $app->before(function (Request $request, $app) {
@@ -57,10 +57,10 @@ if($app['db.options']['schema']) {
     $app['db']->query('SET search_path TO '.$app['db.options']['schema']);
 }
 
-$app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . '/v'.VERSION.'/storage/cache'));
+$app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . '/storage/cache'));
 
 $app->register(new MonologServiceProvider(), array(
-    "monolog.logfile" => ROOT_PATH . '/v'.VERSION.'/storage/logs/' . date('Y-m-d') . ".log",
+    "monolog.logfile" => ROOT_PATH . '/storage/logs/' . date('Y-m-d') . ".log",
     "monolog.level" => $app["log.level"],
     "monolog.name" => "application"
 ));
@@ -83,7 +83,14 @@ $routesLoader->bindRoutesToControllers();
 $app->error(function (\Exception $e, $code) use ($app) {
     $app['monolog']->addError($e->getMessage());
     $app['monolog']->addError($e->getTraceAsString());
-    return new JsonResponse(array("statusCode" => $code, "message" => $e->getMessage(), "stacktrace" => $e->getTraceAsString()));
+    $response = array(
+        "statusCode" => $code,
+        "message" => $e->getMessage()
+    );
+    if($app['debug']) {
+        $response['stacktrace'] = $e->getTraceAsString();
+    }
+    return new JsonResponse($response);
 });
 
 return $app;

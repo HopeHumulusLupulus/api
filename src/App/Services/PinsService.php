@@ -203,7 +203,7 @@ SELECT pin.id AS id_pin,
         if(!isset($pin['id_district']) || !$pin['id_district']) {
             $address = $this->getAddressData($pin['lat'], $pin['lng']);
             if(count($address) <=4) {
-                return "Location dont return a complete address (country, state, city, district)";
+                throw new \Exception('Location dont return a complete address (country, state, city, district)');
             }
             if(!$pin['address']) {
                 $pin['address'] = $address['full'];
