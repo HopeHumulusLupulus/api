@@ -27,8 +27,8 @@ SELECT p.id,
        p.link,
        COUNT(pc.id) AS checkins
   FROM pin p
-  JOIN district d ON d.id = p.id_district
-  JOIN city c ON c.id = d.id_city
+  LEFT JOIN district d ON d.id = p.id_district
+  JOIN city c ON c.id = d.id_city OR c.id = p.id_city
   JOIN state s ON s.id = c.id_state
   JOIN country co ON co.id = s.id_country
   LEFT JOIN pin_checkin pc ON pc.id_pin = p.id
@@ -104,8 +104,8 @@ SELECT p.id,
        p.link,
        COUNT(pc.id) AS checkins
   FROM pin p
-  JOIN district d ON d.id = p.id_district
-  JOIN city c ON c.id = d.id_city
+  LEFT JOIN district d ON d.id = p.id_district
+  JOIN city c ON c.id = d.id_city OR c.id = p.id_city
   JOIN state s ON s.id = c.id_state
   JOIN country co ON co.id = s.id_country
   LEFT JOIN pin_checkin pc ON pc.id_pin = p.id
