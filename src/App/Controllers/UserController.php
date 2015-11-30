@@ -92,11 +92,7 @@ class UserController
                 $telegram = new Api($token);
                 $telegram->sendMessage([
                     'chat_id' => -12270086,
-                    'text' => '{'.
-                        '"name":"'.$data['name'].'",'."\n".
-                        '"email":"'.$data['email'].'",'."\n".
-                        '"message":"'.$data['message'].'"'."\n".
-                    '}'
+                    'text' => print_r($data, true)
                 ]);
             } catch(Exception $e) { }
             $message = \Swift_Message::newInstance()
