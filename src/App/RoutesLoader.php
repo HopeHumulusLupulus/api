@@ -73,7 +73,8 @@ class RoutesLoader extends Route
         $api->get('/state', "state.controller:getAll");
 
         $api->post('/contact', "user.controller:contact")
-            ->value('to', $this->app['email_contact']);
+            ->value('to', $this->app['email_contact'])
+            ->value('token', $this->app['telegram_bot_token']);
 
         $this->app->mount('/'.$this->app["api.version"], $api);
     }
