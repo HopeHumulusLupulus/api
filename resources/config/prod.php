@@ -11,6 +11,7 @@ $app['db'] = array(
     'schema'   => getenv('db_schema'),
     'charset'  => 'UTF8'
 );
+$app['telegram_bot_token'] = getenv('TELEGRAM_BOT_TOKEN');
 $app['swiftmailer.options'] = array(
     'host' => 'smtp.gmail.com',
     'port' => '465',

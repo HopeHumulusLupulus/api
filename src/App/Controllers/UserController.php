@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\PinsService;
 use App\Services\UserService;
+use Telegram\Bot\Api;
 
 
 class UserController
@@ -82,14 +83,21 @@ class UserController
         return new JsonResponse(true);
     }
 
-    public function contact($to, Request $request)
+    public function contact($to, $token, Request $request)
     {
         if(\is_numeric($response = $this->userService->contact(
             $data = json_decode($request->getContent(), true)
         ))) {
             try{
-                $telegram = new \Zyberspace\Telegram\Cli\Client('tcp://localhost:2015');
-                $telegram->msg('chat#12270086', print_r($data, true));
+                $telegram = new Api($token);
+                $telegram->sendMessage([
+                    'chat_id' => -12270086,
+                    'text' => '{'.
+                        '"name":"'.$data['name'].'",'."\n".
+                        '"email":"'.$data['email'].'",'."\n".
+                        '"message":"'.$data['message'].'"'."\n".
+                    '}'
+                ]);
             } catch(Exception $e) { }
             $message = \Swift_Message::newInstance()
                 ->setSubject('Contato')
