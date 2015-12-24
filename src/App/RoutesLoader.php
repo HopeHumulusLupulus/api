@@ -22,25 +22,29 @@ class RoutesLoader extends Route
     private function instantiateControllers()
     {
         $this->app['doc.controller'] = $this->app->share(function () {
-            return new Controllers\DocController($this->app);
+            return new Controllers\DocController();
         });
         $this->app['pins.controller'] = $this->app->share(function () {
-            return new Controllers\PinsController($this->app);
+            $pins = new Controllers\PinsController();
+            $pins->app = $this->app;
+            return $pins;
         });
         $this->app['user.controller'] = $this->app->share(function () {
-            $user = new Controllers\UserController($this->app['user.service']);
+            $user = new Controllers\UserController();
             $user->app = $this->app;
             return $user;
         });
         $this->app['state.controller'] = $this->app->share(function () {
-            return new Controllers\StateController($this->app['state.service']);
+            $state = new Controllers\StateController();
+            $state->app = $this->app;
+            return $state;
         });
     }
 
     public function bindRoutesToControllers()
     {
         $api = $this->app["controllers_factory"];
-        
+
         $api->get('/doc', "doc.controller:get");
 
         # pins

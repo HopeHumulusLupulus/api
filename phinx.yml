@@ -20,6 +20,7 @@ environments:
         user: %%PHINX_USER%%
         pass: %%PHINX_PASS%%
         port: %%PHINX_PORT%%
+        default_migration_table: %%PHINX_MIGRATION_TABLE%%
         schema: %%PHINX_SCHEMA%%
         charset: %%PHINX_CHARSET%%
 
