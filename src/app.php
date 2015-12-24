@@ -46,7 +46,6 @@ $app->before(function (Request $request) {
         $data = json_decode($request->getContent(), true);
         $request->request->replace(is_array($data) ? $data : array());
     }
-    
 });
 
 $app->register(new ServiceControllerServiceProvider());
@@ -71,6 +70,11 @@ $app->register(new Silex\Provider\SwiftmailerServiceProvider(), array(
 ));
 
 $app->register(new Cocur\Slugify\Bridge\Silex\SlugifyServiceProvider());
+
+$app->register(new Silex\Provider\TranslationServiceProvider(), array(
+    'locale_fallbacks' => $app['locale_fallbacks'],
+    'translator.domains' => $app['translator.domains']
+));
 
 //load services
 $servicesLoader = new App\ServicesLoader($app);

@@ -40,6 +40,7 @@ class UserService extends BaseService
         if($data) {
             $stmt = $this->db->prepare(
                 "SELECT ua.id AS code, ua.name, ua.gender, ua.birth,\n".
+                "       ua.lang,\n".
                 "       count(DISTINCT pc.id) AS total_checkin,\n".
                 "       count(DISTINCT pc.id_pin) AS total_visited,\n".
                 "       count(DISTINCT pin.id) AS total_created\n".
@@ -80,7 +81,7 @@ class UserService extends BaseService
             }
         }
     }
-    
+
     public function loginByPassword($post)
     {
         $join = $where = $data = array();
@@ -156,7 +157,7 @@ class UserService extends BaseService
             }
             return $access_token ?: false;
         }
-        
+
     }
 
     /**
@@ -231,12 +232,12 @@ class UserService extends BaseService
     public function save($user, $current_data = array())
     {
         $user = $this->normalize($user);
-        
+
         if(!array_key_exists('id', $current_data)) {
             $current_data['id'] = null;
         }
-        
-        if(!array_key_exists('emails', $user) && array_key_exists('phones', $user)) {
+
+        if(!array_key_exists('emails', $user) && !array_key_exists('phones', $user) && !$current_data['id']) {
             throw new \Exception('Phone or email is necessary for create account');
         }
         # Phone
@@ -252,14 +253,21 @@ class UserService extends BaseService
                 throw new \Exception('Email already used');
             }
         }
-        
+
         # gender
         if($user['gender']) {
             if(!in_array(strtoupper($user['gender']), array('M', 'F', 'U'))) {
                 throw new \Exception('Invalid gender');
             }
         }
-        
+
+        # lang
+        if(array_key_exists('lang', $user)) {
+            if(!in_array($user['lang'], array('pt_BR', 'en_US'))) {
+                throw new \Exception('Invalid language');
+            }
+        }
+
         # birth
         if($user['birth']) {
             $user['birth'] = \DateTime::createFromFormat('Y-m-d', $user['birth']);
@@ -274,7 +282,7 @@ class UserService extends BaseService
                 $user['birth'] = $user['birth']->format('Y-m-d');
             }
         }
-        
+
         if(array_key_exists('password', $user)) {
             if(!is_string($user['password'])) {
                 throw new \Exception('Password must be a string');
@@ -304,6 +312,9 @@ class UserService extends BaseService
             }
             if($user['birth'] != $current_data['birth']) {
                 $data['birth'] = $user['birth'];
+            }
+            if($user['lang'] != $current_data['lang']) {
+                $data['lang'] = $user['lang'];
             }
             if($data) {
                 $this->db->update('user_account', $data, array('id' => $current_data['id']));
@@ -399,7 +410,7 @@ class UserService extends BaseService
         ));
         return $this->db->lastInsertId('contact_id_seq');
     }
-    
+
     public function requestToken($data)
     {
         if(!isset($data['authenticated'])) {
@@ -408,7 +419,7 @@ class UserService extends BaseService
         $this->db->insert('session_user_account', $data);
         return $data;
     }
-    
+
     public function validateToken($data)
     {
         $stmt = $this->db->prepare(
@@ -433,8 +444,8 @@ class UserService extends BaseService
             if($last['token'] == $data['token']) {
                 $stmt = $this->db->prepare(
                     'UPDATE session_user_account '.
-                    '   SET access_token = :access_token, '. 
-                    '       authenticated = now(), '. 
+                    '   SET access_token = :access_token, '.
+                    '       authenticated = now(), '.
                     '       attempts = attempts +1'.
                     ' WHERE id = :id'
                 );
@@ -451,7 +462,7 @@ class UserService extends BaseService
         }
         return false;
     }
-    
+
     public function validateAccessToken($token)
     {
         $stmt = $this->db->prepare(
@@ -463,11 +474,11 @@ class UserService extends BaseService
             " WHERE sua.access_token = :access_token"
         );
         $stmt->execute(array('access_token' => $token));
-        return $stmt->fetch() ? : false;
-    }
-    
-    public function update($id, $user)
-    {
+        $user = $stmt->fetch() ? : false;
+        if($user && $user['lang']) {
+            $this->app['translator']->setLocale($user['lang']);
+        }
+        return $user;
     }
 
     public function delete($id)
