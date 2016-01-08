@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\ServicesLoader;
 use App\RoutesLoader;
+use App\Handler\MonologTelegramHandler;
 
 date_default_timezone_set('America/Sao_Paulo');
 
@@ -67,6 +68,15 @@ $app->register(new MonologServiceProvider(), array(
     "monolog.level" => $app["log.level"],
     "monolog.name" => "application"
 ));
+$app['monolog'] = $app->share($app->extend('monolog', function($monolog, $app) {
+    if($app['log.level'] == Monolog\Logger::DEBUG ) {
+        $monolog->pushHandler(new MonologTelegramHandler(
+            new Telegram\Bot\Api($app['telegram_bot.token']),
+            $app['telegram_bot.log_chat']
+        ));
+    }
+    return $monolog;
+}));
 
 $app->register(new Silex\Provider\SwiftmailerServiceProvider(), array(
     'swiftmailer.options' => $app['swiftmailer.options'],
