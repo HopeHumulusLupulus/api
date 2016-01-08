@@ -28,8 +28,8 @@ class FixPinLatLng extends AbstractMigration
     public function up()
     {
         $this->table('pin')
-            ->changeColumn('lat', 'float')
-            ->changeColumn('lng', 'float')
+            ->changeColumn('lat', 'decimal', array('precision' => 10, 'scale' => 2))
+            ->changeColumn('lng', 'decimal', array('precision' => 10, 'scale' => 2))
             ->save();
     }
 

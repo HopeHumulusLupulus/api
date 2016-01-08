@@ -19,7 +19,7 @@ $app = require ROOT_PATH . '/src/app.php';
 
 if($abort) {
     $app->before(function ($request) use($app, $abort) {
-        $app->abort(key($abort), current($abort));
+        $app->abort(key($abort), $app['translator']->trans(current($abort)));
     }, Application::EARLY_EVENT);
 }
 

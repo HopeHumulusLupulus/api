@@ -19,6 +19,10 @@ require ROOT_PATH . '/resources/config/'.$env.'.php';
 
 //handling CORS preflight request
 $app->before(function (Request $request, $app) {
+    $lang = $request->get('lang');
+    if($lang) {
+        $app['translator']->setLocale($lang);
+    }
     if ($request->getMethod() === "OPTIONS") {
         $response = new Response();
         $response->headers->set("Access-Control-Allow-Origin","*");
