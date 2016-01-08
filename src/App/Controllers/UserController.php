@@ -90,7 +90,7 @@ class UserController
             try{
                 $telegram = new Api($token);
                 $telegram->sendMessage([
-                    'chat_id' => -12270086,
+                    'chat_id' => $this->app['telegram_bot.contact_chat'],
                     'text' => print_r($data, true)
                 ]);
             } catch(Exception $e) { }
