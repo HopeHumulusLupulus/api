@@ -189,7 +189,7 @@ SELECT pin.id AS id_pin,
      */
     public function getEmailService() {
         if(!\is_object($this->EmailService)) {
-            $this->EmailService = new EmailService($this->db);
+            $this->EmailService = new EmailService($this->app);
         }
         return $this->EmailService;
     }
@@ -200,6 +200,11 @@ SELECT pin.id AS id_pin,
             $phones = $pin['phones'];
             unset($pin['phones']);
         }
+        if(array_key_exists('enabled_by', $pin)) {
+            if(!$current_data['enabled']) {
+                $pin['enabled'] = date('Y-m-d H:i:s');
+            }
+        }
         if(!isset($pin['id_district']) || !$pin['id_district']) {
             $address = $this->getAddressData($pin['lat'], $pin['lng']);
             if(count($address) <=3) {
@@ -209,7 +214,7 @@ SELECT pin.id AS id_pin,
                 $pin['address'] = $address['full'];
             }
             # Country
-            $this->country = new CountryService($this->db);
+            $this->country = new CountryService($this->app);
             $country = $this->country->getCountry(array(
                 'name' => $address['country']
             ));
@@ -221,7 +226,7 @@ SELECT pin.id AS id_pin,
             }
             $pin['id_country'] = $country['id'];
             # State
-            $this->state = new StateService($this->db);
+            $this->state = new StateService($this->app);
             $state = $this->state->getState(array(
                 'name' => $address['state'],
                 'id_country' => $country['id']
@@ -235,7 +240,7 @@ SELECT pin.id AS id_pin,
             }
             $pin['id_state'] = $state['id'];
             # City
-            $this->city = new CityService($this->db);
+            $this->city = new CityService($this->app);
             $city = $this->city->getCity(array(
                 'name' => $address['city'],
                 'id_state' => $state['id']
@@ -250,7 +255,7 @@ SELECT pin.id AS id_pin,
             $pin['id_city'] = $city['id'];
             # District
             if(isset($address['district'])) {
-                $this->district = new DistrictService($this->db);
+                $this->district = new DistrictService($this->app);
                 $district = $this->district->getDistrict(array(
                     'name' => $address['district'],
                     'id_city' => $city['id']
@@ -265,13 +270,13 @@ SELECT pin.id AS id_pin,
                 $pin['id_district'] = $district['id'];
             }
         } else {
-            $this->district = new DistrictService($this->db);
+            $this->district = new DistrictService($this->app);
             $district = $this->district->getDistrict(array('id' => $pin['id_district']));
             $pin['id_city'] = $district['id_city'];
-            $this->city = new CityService($this->db);
+            $this->city = new CityService($this->app);
             $city = $this->city->getCity(array('id' => $district['id_city']));
             $pin['id_state'] = $city['id_state'];
-            $this->state = new StateService($this->db);
+            $this->state = new StateService($this->app);
             $state = $this->state->getState(array('id' => $city['id_state']));
             $pin['id_country'] = $state['id_country'];
         }

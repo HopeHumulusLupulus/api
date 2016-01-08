@@ -45,7 +45,9 @@ $app['translator.domains'] = [
             'Only allowed to 18 years' => 'Permitido apenas para maiores de 18 anos',
             'Password must be a string' => 'Senha precisa ser textual',
             'Password is not allowed under 6 characters' =>
-                'Não são permidas senhas com menos de 6 caracteres'
+                'Não são permidas senhas com menos de 6 caracteres',
+            'Upgrade app to new version' =>
+                'Atualize para uma nova versão'
         ]
     ]
 ];

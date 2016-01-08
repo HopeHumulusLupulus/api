@@ -166,7 +166,7 @@ class UserService extends BaseService
      */
     public function getPhoneService() {
         if(!\is_object($this->PhoneService)) {
-            $this->PhoneService = new PhoneService($this->db);
+            $this->PhoneService = new PhoneService($this->app);
         }
         return $this->PhoneService;
     }
@@ -177,7 +177,7 @@ class UserService extends BaseService
      */
     public function getEmailService() {
         if(!\is_object($this->EmailService)) {
-            $this->EmailService = new EmailService($this->db);
+            $this->EmailService = new EmailService($this->app);
         }
         return $this->EmailService;
     }
