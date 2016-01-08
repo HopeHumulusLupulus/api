@@ -17,7 +17,7 @@ class MonologTelegramHandler extends MailHandler {
     {
         $this->telegram->sendMessage([
             'chat_id' => $this->chat_id,
-            'text' => $content,
+            'text' => getenv('APP_ENV').'->'.$content,
             'disable_web_page_preview' => true
         ]);
     }
