@@ -14,6 +14,7 @@ $app['db'] = array(
 $app['telegram_bot.token'] = getenv('TELEGRAM_BOT_TOKEN');
 $app['telegram_bot.log_chat'] = getenv('TELEGRAM_BOT_LOG_CHAT');
 $app['telegram_bot.contact_chat'] = getenv('TELEGRAM_BOT_CONTACT_CHAT');
+$app['telegram_bot.log_chat.enable'] = $app['log.level'] == Monolog\Logger::DEBUG;
 $app['cli.sendmessage'] = __DIR__.'/../../src/cli.php sendmsg ';
 $app['swiftmailer.options'] = array(
     'host' => 'smtp.gmail.com',
