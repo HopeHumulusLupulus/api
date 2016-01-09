@@ -9,16 +9,20 @@ class MonologTelegramHandler extends MailHandler {
      * @var Api
      */
     private $telegram;
-    public function __construct(Api $telegram, $chat_id, $level = \Monolog\Logger::ERROR, $bubble = true) {
-        $this->telegram = $telegram;
-        $this->chat_id = $chat_id;
+    public function __construct($arguments, $level = \Monolog\Logger::ERROR, $bubble = true) {
+        $this->arguments = $arguments;
     }
     protected function send($content, array $records)
     {
-        $this->telegram->sendMessage([
-            'chat_id' => $this->chat_id,
-            'text' => getenv('APP_ENV').'->'.$content,
-            'disable_web_page_preview' => true
-        ]);
+        pclose(popen('php '.$this->arguments['command'].
+            base64_encode(serialize([
+                'params' => [
+                    'chat_id' => $this->arguments['chat_id'],
+                    'text' => getenv('APP_ENV').'->'.$content,
+                    'disable_web_page_preview' => true
+                ],
+                'token' => $this->arguments['token']
+            ])).' &', 'r'
+        ));
     }
 }

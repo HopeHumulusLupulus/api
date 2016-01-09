@@ -155,7 +155,7 @@ class UserService extends BaseService
                     $this->db->insert('session_user_account', $insert);
                 }
             }
-            return $access_token ?: false;
+            return isset($access_token) ? $access_token : false;
         }
 
     }

@@ -281,12 +281,19 @@ SELECT pin.id AS id_pin,
             $pin['id_country'] = $state['id_country'];
         }
         $this->db->insert("pin", $pin);
-        $id = $this->db->lastInsertId('pin_id_seq');
+        $this->current = $pin;
+        $this->current['id'] = $this->db->lastInsertId('pin_id_seq');
         foreach($phones as $phone) {
-            $phone['id_pin'] = $id;
+            $phone['id_pin'] = $this->current['id'];
             $this->db->insert("phone_pin", $phone);
+            $this->current['phones'][] = $phone;
         }
-        return $id;
+        return $this->current['id'];
+    }
+    
+    public function getLastInsetPin()
+    {
+        return $this->current;
     }
 
     public function update($id, $pin)

@@ -6,8 +6,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\PinsService;
 use App\Services\UserService;
-use Telegram\Bot\Api;
-use Behat\Behat\Exception\Exception;
 use Symfony\Component\HttpFoundation\Symfony\Component\HttpFoundation;
 
 
@@ -87,19 +85,33 @@ class UserController
         if(\is_numeric($response = $this->app['user.service']->contact(
             $data = json_decode($request->getContent(), true)
         ))) {
-            try{
-                $telegram = new Api($token);
-                $telegram->sendMessage([
-                    'chat_id' => $this->app['telegram_bot.contact_chat'],
-                    'text' => print_r($data, true)
-                ]);
-            } catch(Exception $e) { }
-            $message = \Swift_Message::newInstance()
-                ->setSubject('Contato')
-                ->setFrom(array($data['email'] => $data['name']))
-                ->setTo(array($to => 'Lupulocalizador'))
-                ->setBody($data['message']);
-            $result = $this->app['mailer']->send($message);
+            try {
+                pclose(popen('php '.$this->app['cli.sendmessage'].
+                    base64_encode(serialize([
+                        'params' => [
+                            'chat_id' => $this->app['telegram_bot.contact_chat'],
+                            'text' => print_r($data, true)
+                        ],
+                        'token' => $this->app['telegram_bot.token']
+                    ])).' &', 'r'
+                ));
+                $message = \Swift_Message::newInstance()
+                    ->setSubject('Contato')
+                    ->setFrom(array($data['email'] => $data['name']))
+                    ->setTo(array($to => 'Lupulocalizador'))
+                    ->setBody($data['message']);
+                $result = $this->app['mailer']->send($message);
+            } catch (\Exception $e) {
+                pclose(popen('php '.$this->app['cli.sendmessage'].
+                    base64_encode(serialize([
+                        'params' => [
+                            'chat_id' => $this->app['telegram_bot.contact_chat'],
+                            'text' => print_r($e->getMessage(), true)
+                        ],
+                        'token' => $this->app['telegram_bot.token']
+                    ])).' &', 'r'
+                ));
+            }
             return new JsonResponse(array("protocol" => $response));
         } else {
             return new Response(json_encode(array(

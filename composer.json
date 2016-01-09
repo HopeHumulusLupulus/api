@@ -32,7 +32,8 @@
 	},
 	"autoload" : {
 		"psr-0" : {
-			"App" : "src/"
+            "App" : "src/",
+            "Cli" : "src/"
 		}
 	},
 	"scripts": {

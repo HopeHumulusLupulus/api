@@ -37,6 +37,14 @@ class PinsController
             $post['created_by'] = $user['id'];
 
             if(\is_numeric($response = $this->app['pins.service']->save($post))) {
+                $pin = $this->app['pins.service']->getLastInsetPin();
+                $telegram = new Api($this->app['telegram_bot.token']);
+                $telegram->sendMessage([
+                    'chat_id' => $this->app['telegram_bot.log_chat'],
+                    'text' => '```'.print_r($pin, true).'```',
+                    'disable_web_page_preview' => true,
+                    'parse_mode' => 'markdown'
+                ]);
                 return new JsonResponse(array("id" => $response));
             } else {
                 throw new \Exception($response);
