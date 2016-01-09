@@ -238,33 +238,33 @@ class UserService extends BaseService
         }
 
         if(!array_key_exists('emails', $user) && !array_key_exists('phones', $user) && !$current_data['id']) {
-            throw new \Exception('Phone or email is necessary for create account');
+            throw new \Exception('PHONE_OR_MAIL_REQUIRED');
         }
         # Phone
         if(array_key_exists('phones', $user)) {
             if($this->getPhoneService()->get(array('phones' => $user['phones']), $current_data['id'])) {
-                throw new \Exception('Phone already used');
+                throw new \Exception('PHONE_USED');
             }
         }
 
         #email
         if(array_key_exists('emails', $user)) {
             if($this->getEmailService()->get(array('emails' => $user['emails']), $current_data['id'])) {
-                throw new \Exception('Email already used');
+                throw new \Exception('EMAIL_USED');
             }
         }
 
         # gender
         if($user['gender']) {
             if(!in_array(strtoupper($user['gender']), array('M', 'F', 'U'))) {
-                throw new \Exception('Invalid gender');
+                throw new \Exception('INVALID_GENDER');
             }
         }
 
         # lang
         if(array_key_exists('lang', $user)) {
             if(!in_array($user['lang'], array('pt_BR', 'en_US'))) {
-                throw new \Exception('Invalid language');
+                throw new \Exception('INVALID_LANG');
             }
         }
 
@@ -272,12 +272,12 @@ class UserService extends BaseService
         if($user['birth']) {
             $user['birth'] = \DateTime::createFromFormat('Y-m-d', $user['birth']);
             if(!$user['birth']) {
-                throw new \Exception('Invalid birth');
+                throw new \Exception('INVALID_BIRTH');
             } else {
                 $eighteen = new \DateTime();
                 $eighteen->sub(new \DateInterval('P18Y'));
                 if($user['birth'] > $eighteen) {
-                    throw new \Exception('Only allowed to 18 years');
+                    throw new \Exception('ONLY_MORE_18Y');
                 }
                 $user['birth'] = $user['birth']->format('Y-m-d');
             }
@@ -285,10 +285,10 @@ class UserService extends BaseService
 
         if(array_key_exists('password', $user)) {
             if(!is_string($user['password'])) {
-                throw new \Exception('Password must be a string');
+                throw new \Exception('PASS_NOT_STRING');
             }
             if(strlen($user['password']) < 6) {
-                throw new \Exception('Password is not allowed under 6 characters');
+                throw new \Exception('LOW_PASSWORD');
             }
             if(isset($current_data['password'])) {
                 if(!password_verify($user['password'], $current_data['password'])) {

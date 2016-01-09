@@ -31,7 +31,7 @@ class PinsController
         try {
             $post = json_decode($request->getContent(), true);
             if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
-                throw new \Exception('Invalid Access Token');
+                throw new \Exception('INVALID_ACCESS_TOKEN');
             }
             unset($post['access-token']);
             $post['created_by'] = $user['id'];
@@ -61,7 +61,7 @@ class PinsController
         $post = json_decode($request->getContent(), true);
         if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('Invalid Access Token'))
+                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
             )), 403, array('Content-Type' => 'application/json'));
         }
         unset($post['access-token']);
@@ -79,7 +79,7 @@ class PinsController
         $post = json_decode($request->getContent(), true);
         if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('Invalid Access Token'))
+                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
             )), 403, array('Content-Type' => 'application/json'));
         }
         unset($post['access-token']);
@@ -91,7 +91,7 @@ class PinsController
         $post = json_decode($request->getContent(), true);
         if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('Invalid Access Token'))
+                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
             )), 403, array('Content-Type' => 'application/json'));
         }
         unset($post['access-token']);
@@ -111,12 +111,12 @@ class PinsController
         $post = json_decode($request->getContent(), true);
         if(!$this->app['pins.service']->getOne($id_pin)) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('This pin does not exist'))
+                'messages'=>array($this->app['translator']->trans('INVALID_PIN'))
             )), 403, array('Content-Type' => 'application/json'));
         }
         if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('Invalid Access Token'))
+                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
             )), 403, array('Content-Type' => 'application/json'));
         }
         $last = $this->app['pins.service']->getLastCheckin($id_pin, $user['id']);
@@ -125,7 +125,7 @@ class PinsController
             $last_created->sub(new \DateInterval('P1D'));
             if($last['created'] > $last_created->format('Y-m-d H-i-s')) {
                 return new Response(json_encode(array(
-                    'messages'=>array($this->app['translator']->trans('Only is possible make a checkin in day'))
+                    'messages'=>array($this->app['translator']->trans('EXCEEDED_CHECKIN_LIMIT'))
                 )), 403, array('Content-Type' => 'application/json'));
             }
         }

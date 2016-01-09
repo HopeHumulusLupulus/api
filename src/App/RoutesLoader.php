@@ -39,6 +39,11 @@ class RoutesLoader extends Route
             $state->app = $this->app;
             return $state;
         });
+        $this->app['global.controller'] = $this->app->share(function () {
+            $state = new Controllers\GlobalController();
+            $state->app = $this->app;
+            return $state;
+        });
     }
 
     public function bindRoutesToControllers()
@@ -79,6 +84,8 @@ class RoutesLoader extends Route
         $api->post('/contact', "user.controller:contact")
             ->value('to', $this->app['email_contact'])
             ->value('token', $this->app['telegram_bot.token']);
+
+        $api->get('/about', 'global.controller:about');
 
         $this->app->mount('/'.$this->app["api.version"], $api);
     }

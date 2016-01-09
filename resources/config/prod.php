@@ -25,33 +25,54 @@ $app['swiftmailer.options'] = array(
     'auth_mode' => 'login'
 );
 $app['swiftmailer.use_spool'] = false;
-$app['locale_fallbacks'] = array('en_US');
+$app['locale_fallbacks'] = array('en', 'pt_BR');
 $app['translator.domains'] = [
     'messages' => [
+        'en' => [
+            'INVALID_ACCESS_TOKEN' => 'Invalid Access Token',
+            'INVALID_PIN' => 'This pin does not exist',
+            'EXCEEDED_CHECKIN_LIMIT' => 'Only is possible make a checkin in day',
+            'INVALID_USER' => 'Invalid user',
+            'INVALID_TOKEN' => 'Invalid token',
+            'USER_PASS_AUTH_FAIL' => 'Invalid user or password',
+            'YOUR_TOKEN' => "Hello, your token is: %token%\n inform in app",
+            'INVALID_LOCATION' => 'Location dont return a complete address (country, state, city, district)',
+            'PHONE_OR_MAIL_REQUIRED' => 'Phone or email is necessary for create account',
+            'PHONE_USED' => 'Phone already used',
+            'EMAIL_USED' => 'Email already used',
+            'INVALID_GENDER' => 'Invalid gender',
+            'INVALID_LANG' => 'Invalid language',
+            'INVALID_BIRTH' => 'Invalid birth',
+            'ONLY_MORE_18Y' => 'Only allowed to 18 years',
+            'PASS_NOT_STRING' => 'Password must be a string',
+            'LOW_PASSWORD' => 'Password is not allowed under 6 characters',
+            'INVALID_VERSION' => 'Upgrade app to new version',
+            'ABOUT_TITLE' => 'Title',
+            'ABOUT_BODY' => 'Body',
+            'ABOUT_FOOTER' => 'Footer'
+        ],
         'pt_BR' =>[
             'Invalid Access Token' => 'Chave de acesso inválida',
-            'This pin does not exist' => 'Este pin não existe',
-            'Only is possible make a checkin in day' => 'Só é possvel fazer um checkin no dia',
-            'Invalid user' => 'Usuário inválido',
-            'Invalid token' => 'Chave inválida',
-            'Invalid user or password' => 'Usuário ou senha inválida',
-            "Hello, your token is: %token%\n inform in app" =>
-                "Olá, seu token é: %token%\n informe no aplicativo",
-            'Location dont return a complete address (country, state, city, district)' =>
-                'Localização não retornou um endereço completo com país, estado, cidade e bairro',
-            'Phone or email is necessary for create account' =>
-                'Telefone ou email é necessário para criar uma conta',
-            'Phone already used' => 'Telefone já utilizado',
-            'Email already used' => 'Email já utilizado',
-            'Invalid gender' => 'Sexo inválido',
-            'Invalid language' => 'Idioma inválido',
-            'Invalid birth' => 'Data de nascimento inválida',
-            'Only allowed to 18 years' => 'Permitido apenas para maiores de 18 anos',
-            'Password must be a string' => 'Senha precisa ser textual',
-            'Password is not allowed under 6 characters' =>
-                'Não são permidas senhas com menos de 6 caracteres',
-            'Upgrade app to new version' =>
-                'Atualize para uma nova versão'
+            'INVALID_PIN' => 'Este pin não existe',
+            'EXCEEDED_CHECKIN_LIMIT' => 'Só é possvel fazer um checkin no dia',
+            'INVALID_USER' => 'Usuário inválido',
+            'INVALID_TOKEN' => 'Chave inválida',
+            'USER_PASS_AUTH_FAIL' => 'Usuário ou senha inválida',
+            'YOUR_TOKEN' => "Olá, seu token é: %token%\n informe no aplicativo",
+            'INVALID_LOCATION' => 'Localização não retornou um endereço completo com país, estado, cidade e bairro',
+            'PHONE_OR_MAIL_REQUIRED' => 'Telefone ou email é necessário para criar uma conta',
+            'PHONE_USED' => 'Telefone já utilizado',
+            'EMAIL_USED' => 'Email já utilizado',
+            'INVALID_GENDER' => 'Sexo inválido',
+            'INVALID_LANG' => 'Idioma inválido',
+            'INVALID_BIRTH' => 'Data de nascimento inválida',
+            'ONLY_MORE_18Y' => 'Permitido apenas para maiores de 18 anos',
+            'PASS_NOT_STRING' => 'Senha precisa ser textual',
+            'LOW_PASSWORD' => 'Não são permidas senhas com menos de 6 caracteres',
+            'INVALID_VERSION' => 'Atualize para uma nova versão',
+            'ABOUT_TITLE' => 'Título',
+            'ABOUT_BODY' => 'Corpo',
+            'ABOUT_FOOTER' => 'Rodapé'
         ]
     ]
 ];
