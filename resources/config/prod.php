@@ -1,6 +1,6 @@
 <?php
 $app['log.level'] = Monolog\Logger::ERROR;
-$app['api.version'] = 'v' . VERSION;
+$app['api.version'] = 'v' . (defined('VERSION') ? VERSION : '0');
 $app['email_contact'] = getenv('EMAIL_CONTACT');
 $app['db'] = array(
     'driver'   => 'pdo_pgsql',
@@ -14,6 +14,7 @@ $app['db'] = array(
 $app['telegram_bot.token'] = getenv('TELEGRAM_BOT_TOKEN');
 $app['telegram_bot.log_chat'] = getenv('TELEGRAM_BOT_LOG_CHAT');
 $app['telegram_bot.contact_chat'] = getenv('TELEGRAM_BOT_CONTACT_CHAT');
+$app['cli.sendmessage'] = __DIR__.'/../../src/cli.php sendmsg ';
 $app['swiftmailer.options'] = array(
     'host' => 'smtp.gmail.com',
     'port' => '465',

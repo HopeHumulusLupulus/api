@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "932adc8adb1a23c9198f440f40914b03",
+    "hash": "a510c9faa34463bf101db1e357bd21ba",
     "content-hash": "98ddcb4fa85348ed6fa8a347cf0391ee",
     "packages": [
         {
@@ -813,12 +813,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/irazasyed/telegram-bot-sdk.git",
-                "reference": "d22029ec9b26d377669339db74fd54d2efd44be3"
+                "reference": "864289d2d203db9b24008b8969e32dab0099809d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/irazasyed/telegram-bot-sdk/zipball/d22029ec9b26d377669339db74fd54d2efd44be3",
-                "reference": "d22029ec9b26d377669339db74fd54d2efd44be3",
+                "url": "https://api.github.com/repos/irazasyed/telegram-bot-sdk/zipball/864289d2d203db9b24008b8969e32dab0099809d",
+                "reference": "864289d2d203db9b24008b8969e32dab0099809d",
                 "shasum": ""
             },
             "require": {
@@ -828,7 +828,7 @@
             },
             "require-dev": {
                 "phpspec/prophecy": "^1.5",
-                "phpunit/phpunit": "^4.8|^5.0"
+                "phpunit/phpunit": "^4.8 || ^5.0"
             },
             "suggest": {
                 "illuminate/container": "Hold dependencies to be injected in commands constructors",
@@ -867,7 +867,7 @@
                 "telegram php",
                 "telegram sdk"
             ],
-            "time": "2016-01-04 12:39:05"
+            "time": "2016-01-08 20:54:32"
         },
         {
             "name": "monolog/monolog",

@@ -69,11 +69,12 @@ $app->register(new MonologServiceProvider(), array(
     "monolog.name" => "application"
 ));
 $app['monolog'] = $app->share($app->extend('monolog', function($monolog, $app) {
-    if($app['log.level'] == Monolog\Logger::DEBUG ) {
-        $monolog->pushHandler(new MonologTelegramHandler(
-            new Telegram\Bot\Api($app['telegram_bot.token']),
-            $app['telegram_bot.log_chat']
-        ));
+    if($app['telegram_bot.log_chat.enable'] && $app['log.level'] == Monolog\Logger::DEBUG ) {
+        $monolog->pushHandler(new MonologTelegramHandler([
+            'token' => $app['telegram_bot.token'],
+            'chat_id' => $app['telegram_bot.log_chat'],
+            'command' => $app['cli.sendmessage']
+        ]));
     }
     return $monolog;
 }));
