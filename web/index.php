@@ -7,7 +7,7 @@ if(!isset($matches['version'])) {
     $abort[403] = 'Invalid version';
 } else if($matches['version'] < 1) {
     define('VERSION', 2);
-    $abort[436] = 'Upgrade app to new version';
+    $abort[436] = 'INVALID_VERSION';
 } else {
     define('VERSION', $matches['version']);
 }

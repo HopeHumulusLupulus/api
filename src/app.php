@@ -20,10 +20,6 @@ require ROOT_PATH . '/resources/config/'.$env.'.php';
 
 //handling CORS preflight request
 $app->before(function (Request $request, $app) {
-    $lang = $request->get('lang');
-    if($lang) {
-        $app['translator']->setLocale($lang);
-    }
     if ($request->getMethod() === "OPTIONS") {
         $response = new Response();
         $response->headers->set("Access-Control-Allow-Origin","*");
@@ -86,9 +82,14 @@ $app->register(new Silex\Provider\SwiftmailerServiceProvider(), array(
 
 $app->register(new Cocur\Slugify\Bridge\Silex\SlugifyServiceProvider());
 
+$request = Request::createFromGlobals();
+$lang = $request->get('lang');
+if($lang) {
+    $app['locale'] = $lang;
+}
 $app->register(new Silex\Provider\TranslationServiceProvider(), array(
     'locale_fallbacks' => $app['locale_fallbacks'],
-    'translator.domains' => $app['translator.domains']
+    'translator.domains' => $app['translator.domains'],
 ));
 
 //load services

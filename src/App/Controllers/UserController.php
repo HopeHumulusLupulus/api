@@ -55,7 +55,7 @@ class UserController
         $post = json_decode($request->getContent(), true);
         if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('Invalid Access Token'))
+                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
             )), 403, array('Content-Type' => 'application/json'));
         }
         try {
@@ -73,7 +73,7 @@ class UserController
         $post = json_decode($request->getContent(), true);
         if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('Invalid Access Token'))
+                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
             )), 403, array('Content-Type' => 'application/json'));
         }
         $this->app['user.service']->delete($user['id']);
@@ -127,7 +127,7 @@ class UserController
         if(!$user) {
             if(!$user = $this->app['user.service']->get($data)) {
                 return new Response(json_encode(array(
-                    'messages'=>array($this->app['translator']->trans('Invalid user'))
+                    'messages'=>array($this->app['translator']->trans('INVALID_USER'))
                 )), 403, array('Content-Type' => 'application/json'));
             }
         }
@@ -140,7 +140,7 @@ class UserController
             ->setFrom(array($this->app['email_contact'] => 'Lupulocalizador'))
             ->setTo(array($data['email'] => $data['name']))
             ->setBody($this->app['translator']->trans(
-                "Hello, your token is: %token%\n inform in app",
+                "YOUR_TOKEN",
                 array('%token%' => $token['token'])
             ));
         $result = $this->app['mailer']->send($message);
@@ -152,7 +152,7 @@ class UserController
         $data = json_decode($request->getContent(), true);
         if(!$user = $this->app['user.service']->get($data)) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('Invalid user'))
+                'messages'=>array($this->app['translator']->trans('INVALID_USER'))
             )), 403, array('Content-Type' => 'application/json'));
         }
         $access_token = $this->app['user.service']->validateToken(array(
@@ -166,7 +166,7 @@ class UserController
             ));
         } else {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('Invalid token'))
+                'messages'=>array($this->app['translator']->trans('INVALID_TOKEN'))
             )), 403, array('Content-Type' => 'application/json'));
         }
     }
@@ -180,7 +180,7 @@ class UserController
             ));
         }
         return new Response(json_encode(array(
-            'messages'=>array($this->app['translator']->trans('Invalid user or password'))
+            'messages'=>array($this->app['translator']->trans('USER_PASS_AUTH_FAIL'))
         )), 403, array('Content-Type' => 'application/json'));
     }
 }
