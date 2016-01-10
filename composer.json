@@ -27,10 +27,15 @@
 		"symfony/translation": "~2.1"
 	},
 	"require-dev" : {
-		"phpunit/phpunit" : "4.6.*@dev",
 		"mockery/mockery" : "0.9.*@dev",
-		"behat/behat" : "~3.0"
+		"cam5/web-api-extension": "~1.0@dev"
 	},
+	"repositories" : [
+	   {
+	       "type" : "vcs",
+	       "url" : "https://github.com/cam5/WebApiExtension"
+	   }
+	],
 	"autoload" : {
 		"psr-0" : {
             "App" : "src/",

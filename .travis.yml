@@ -5,7 +5,18 @@ php:
 
 env:
  - APP_ENV=dev
+ - EMAIL_CONTACT=test@gmail.com
+ - DB_DRIVER=pdo_pgsql
+ - DB_HOST=localhost
+ - DB_NAME=api_testing
+ - DB_USER=postgres
+ - DB_PASSWORD=
+ - DB_SCHEMA=public
+ - DB_CHARSET=utf-8
 
 before_script:
   - wget http://getcomposer.org/composer.phar
-  - composer install --prefer-source
+  - composer install --prefer-source --dev
+  - psql -c 'create database api_testing;' -U postgres
+
+script: bin/behat
