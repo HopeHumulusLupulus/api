@@ -10,75 +10,112 @@ use App\Services\UserService;
 
 class UserController
 {
-
     /**
-     * @var UserService
+     * @SWG\Get(
+     *     path="/user/get",
+     *     @SWG\Response(response="200", description="An example resource")
+     * )
      */
-    protected $userService;
-
-    public function __construct($service)
-    {
-        $this->userService = $service;
-    }
-
     public function get(Request $request, $args)
     {
-        return new JsonResponse($this->userService->get($args));
+        return new JsonResponse($this->app['user.service']->get($args));
     }
 
     public function save(Request $request)
     {
-        if(\is_numeric($response = $this->userService->save(
-            $user = json_decode($request->getContent(), true)
-        ))) {
-            $user['code'] = $response;
-            if($user['method'] && !isset($user['password'])) {
+        try {
+            $id = $this->app['user.service']->save(
+                $user = json_decode($request->getContent(), true)
+            );
+            $user = $this->app['user.service']->get($user);
+            if(isset($user['method']) && $user['method'] && !isset($user['password'])) {
                 $method = 'login_' . $this->app['slugify']->slugify($user['method'], '_');
                 $this->$method($request, $user);
+            } else {
+                $user['access-token'] = $this->app['user.service']->requestToken(array(
+                    'id_user_account' => $id,
+                    'method' => isset($user['method']) && $user['method'] ? $user['method'] : 'password',
+                    'attempts' => 1,
+                    'access_token' => bin2hex(openssl_random_pseudo_bytes(20)),
+                    'authenticated' => date('Y-m-d H:i:s.u')
+                ));
+                $user['access-token'] = $user['access-token']['access_token'];
             }
-            return new JsonResponse(array("id" => $response));
-        } else {
-            return new Response($response, 403);
+            return new JsonResponse($user);
+        } catch (\Exception $e) {
+            return new Response(json_encode(array(
+                'messages'=>array($this->app['translator']->trans($e->getMessage()))
+            )), 403, array('Content-Type' => 'application/json'));
         }
     }
 
     public function update(Request $request)
     {
         $post = json_decode($request->getContent(), true);
-        if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
-            return new Response('Invalid Access Token', 403);
+        if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
+            return new Response(json_encode(array(
+                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
+            )), 403, array('Content-Type' => 'application/json'));
         }
-        if(\is_numeric($response = $this->userService->save($post, $user))) {
+        try {
+            $this->app['user.service']->save($post, $user);
             return new JsonResponse(true);
-        } else {
-            return new Response($response, 403);
+        } catch(\Exception $e) {
+            return new Response(json_encode(array(
+                'messages'=>array($this->app['translator']->trans($e->getMessage()))
+            )), 403, array('Content-Type' => 'application/json'));
         }
     }
 
     public function delete(Request $request)
     {
         $post = json_decode($request->getContent(), true);
-        if(!$user = $this->userService->validateAccessToken($post['access-token'])) {
-            return new Response('Invalid Access Token', 403);
+        if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
+            return new Response(json_encode(array(
+                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
+            )), 403, array('Content-Type' => 'application/json'));
         }
-        $this->userService->delete($user['id']);
+        $this->app['user.service']->delete($user['id']);
         return new JsonResponse(true);
     }
 
-    public function contact($to, Request $request)
+    public function contact($to, $token, Request $request)
     {
-        if(\is_numeric($response = $this->userService->contact(
+        if(\is_numeric($response = $this->app['user.service']->contact(
             $data = json_decode($request->getContent(), true)
         ))) {
-            $message = \Swift_Message::newInstance()
-                ->setSubject('Contato')
-                ->setFrom(array($data['email'] => $data['name']))
-                ->setTo(array($to => 'Lupulocalizador'))
-                ->setBody($data['message']);
-            $result = $this->app['mailer']->send($message);
+            try {
+                pclose(popen('php '.$this->app['cli.sendmessage'].
+                    base64_encode(serialize([
+                        'params' => [
+                            'chat_id' => $this->app['telegram_bot.contact_chat'],
+                            'text' => print_r($data, true)
+                        ],
+                        'token' => $this->app['telegram_bot.token']
+                    ])).' &', 'r'
+                ));
+                $message = \Swift_Message::newInstance()
+                    ->setSubject('Contato')
+                    ->setFrom(array($data['email'] => $data['name']))
+                    ->setTo(array($to => 'Lupulocalizador'))
+                    ->setBody($data['message']);
+                $result = $this->app['mailer']->send($message);
+            } catch (\Exception $e) {
+                pclose(popen('php '.$this->app['cli.sendmessage'].
+                    base64_encode(serialize([
+                        'params' => [
+                            'chat_id' => $this->app['telegram_bot.contact_chat'],
+                            'text' => print_r($e->getMessage(), true)
+                        ],
+                        'token' => $this->app['telegram_bot.token']
+                    ])).' &', 'r'
+                ));
+            }
             return new JsonResponse(array("protocol" => $response));
         } else {
-            return new Response($response, 403);
+            return new Response(json_encode(array(
+                'messages'=>array($this->app['translator']->trans($response))
+            )), 403, array('Content-Type' => 'application/json'));
         }
         return new JsonResponse(true);
     }
@@ -87,29 +124,37 @@ class UserController
     {
         $data = json_decode($request->getContent(), true);
         if(!$user) {
-            if(!$user = $this->userService->get($data)) {
-                return new Response('Invalid user', 403);
+            if(!$user = $this->app['user.service']->get($data)) {
+                return new Response(json_encode(array(
+                    'messages'=>array($this->app['translator']->trans('INVALID_USER'))
+                )), 403, array('Content-Type' => 'application/json'));
             }
         }
-        $data['id'] = $user['code'];
-        $data['method'] = 'email-token';
-        $token = $this->userService->requestToken($data);
+        $token = $this->app['user.service']->requestToken([
+            'id_user_account' => $user['code'],
+            'method' => 'email-token'
+        ]);
         $message = \Swift_Message::newInstance()
             ->setSubject('Lupulocalizador Token')
             ->setFrom(array($this->app['email_contact'] => 'Lupulocalizador'))
             ->setTo(array($data['email'] => $data['name']))
-            ->setBody("Olá, seu token é: $token\n informe no aplicativo");
+            ->setBody($this->app['translator']->trans(
+                "YOUR_TOKEN",
+                array('%token%' => $token['token'])
+            ));
         $result = $this->app['mailer']->send($message);
         return new JsonResponse(true);
     }
-    
+
     public function login_token_confirm($token, Request $request)
     {
         $data = json_decode($request->getContent(), true);
-        if(!$user = $this->userService->get($data)) {
-            return new Response('Invalid user', 403);
+        if(!$user = $this->app['user.service']->get($data)) {
+            return new Response(json_encode(array(
+                'messages'=>array($this->app['translator']->trans('INVALID_USER'))
+            )), 403, array('Content-Type' => 'application/json'));
         }
-        $access_token = $this->userService->validateToken(array(
+        $access_token = $this->app['user.service']->validateToken(array(
             'id' => $user['code'],
             'method' => $data['email'] ? 'email-token' : 'sms-token',
             'token' => $token
@@ -119,18 +164,22 @@ class UserController
                 'access-token' => $access_token
             ));
         } else {
-            return new Response('Invalid token', 403);
+            return new Response(json_encode(array(
+                'messages'=>array($this->app['translator']->trans('INVALID_TOKEN'))
+            )), 403, array('Content-Type' => 'application/json'));
         }
     }
-    
-    public function login_password(Request $request) 
+
+    public function login_password(Request $request)
     {
         $post = json_decode($request->getContent(), true);
-        if($access_token = $this->userService->loginByPassword($post)) {
+        if($access_token = $this->app['user.service']->loginByPassword($post)) {
             return new JsonResponse(array(
                 'access-token' => $access_token
             ));
         }
-        return new Response('Invalid user or password', 403);
+        return new Response(json_encode(array(
+            'messages'=>array($this->app['translator']->trans('USER_PASS_AUTH_FAIL'))
+        )), 403, array('Content-Type' => 'application/json'));
     }
 }

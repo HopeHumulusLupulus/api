@@ -1,6 +1,6 @@
 paths:
     migrations: %%PHINX_CONFIG_DIR%%/migrations
-migration_base_class: App\BaseMigration
+
 environments:
     default_migration_table: phinxlog
     default_database: development
@@ -11,7 +11,6 @@ environments:
         user: %%PHINX_USER%%
         pass: %%PHINX_PASS%%
         port: %%PHINX_PORT%%
-        schema: public
         charset: %%PHINX_CHARSET%%
 
     development:
@@ -21,7 +20,8 @@ environments:
         user: %%PHINX_USER%%
         pass: %%PHINX_PASS%%
         port: %%PHINX_PORT%%
-        schema: development
+        default_migration_table: %%PHINX_MIGRATION_TABLE%%
+        schema: %%PHINX_SCHEMA%%
         charset: %%PHINX_CHARSET%%
 
     testing:

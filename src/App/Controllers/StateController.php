@@ -9,19 +9,8 @@ use App\Services\StateService;
 
 class StateController
 {
-
-    /**
-     * @var StateService
-     */
-    protected $stateService;
-
-    public function __construct($service)
-    {
-        $this->stateService = $service;
-    }
-
     public function getAll(Request $request)
     {
-        return new JsonResponse($this->stateService->getState());
+        return new JsonResponse($this->app['state.service']->getState());
     }
 }

@@ -12,9 +12,10 @@ class BaseService
      */
     protected $db;
 
-    public function __construct($db)
+    public function __construct($app)
     {
-        $this->db = $db;
+        $this->app = $app;
+        $this->db = $app['db'];
     }
 
 }

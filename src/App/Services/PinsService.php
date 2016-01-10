@@ -27,8 +27,8 @@ SELECT p.id,
        p.link,
        COUNT(pc.id) AS checkins
   FROM pin p
-  JOIN district d ON d.id = p.id_district
-  JOIN city c ON c.id = d.id_city
+  LEFT JOIN district d ON d.id = p.id_district
+  JOIN city c ON c.id = d.id_city OR c.id = p.id_city
   JOIN state s ON s.id = c.id_state
   JOIN country co ON co.id = s.id_country
   LEFT JOIN pin_checkin pc ON pc.id_pin = p.id
@@ -104,8 +104,8 @@ SELECT p.id,
        p.link,
        COUNT(pc.id) AS checkins
   FROM pin p
-  JOIN district d ON d.id = p.id_district
-  JOIN city c ON c.id = d.id_city
+  LEFT JOIN district d ON d.id = p.id_district
+  JOIN city c ON c.id = d.id_city OR c.id = p.id_city
   JOIN state s ON s.id = c.id_state
   JOIN country co ON co.id = s.id_country
   LEFT JOIN pin_checkin pc ON pc.id_pin = p.id
@@ -172,7 +172,7 @@ SELECT pin.id AS id_pin,
                             $address['state'] = $component['long_name'];
                         } elseif (in_array('country', $types)) {
                             $address['country'] = $component['long_name'];
-                        } elseif (in_array('neighborhood', $types)) {
+                        } elseif (in_array('neighborhood', $types) || in_array('sublocality', $types)) {
                             $address['district'] = $component['long_name'];
                         }
                     }
@@ -189,7 +189,7 @@ SELECT pin.id AS id_pin,
      */
     public function getEmailService() {
         if(!\is_object($this->EmailService)) {
-            $this->EmailService = new EmailService($this->db);
+            $this->EmailService = new EmailService($this->app);
         }
         return $this->EmailService;
     }
@@ -200,16 +200,21 @@ SELECT pin.id AS id_pin,
             $phones = $pin['phones'];
             unset($pin['phones']);
         }
+        if(array_key_exists('enabled_by', $pin)) {
+            if(!$current_data['enabled']) {
+                $pin['enabled'] = date('Y-m-d H:i:s');
+            }
+        }
         if(!isset($pin['id_district']) || !$pin['id_district']) {
             $address = $this->getAddressData($pin['lat'], $pin['lng']);
-            if(count($address) <=4) {
-                return "Location dont return a complete address (country, state, city, district)";
+            if(count($address) <=3) {
+                throw new \Exception('INVALID_LOCATION');
             }
             if(!$pin['address']) {
                 $pin['address'] = $address['full'];
             }
             # Country
-            $this->country = new CountryService($this->db);
+            $this->country = new CountryService($this->app);
             $country = $this->country->getCountry(array(
                 'name' => $address['country']
             ));
@@ -221,7 +226,7 @@ SELECT pin.id AS id_pin,
             }
             $pin['id_country'] = $country['id'];
             # State
-            $this->state = new StateService($this->db);
+            $this->state = new StateService($this->app);
             $state = $this->state->getState(array(
                 'name' => $address['state'],
                 'id_country' => $country['id']
@@ -235,7 +240,7 @@ SELECT pin.id AS id_pin,
             }
             $pin['id_state'] = $state['id'];
             # City
-            $this->city = new CityService($this->db);
+            $this->city = new CityService($this->app);
             $city = $this->city->getCity(array(
                 'name' => $address['city'],
                 'id_state' => $state['id']
@@ -249,37 +254,46 @@ SELECT pin.id AS id_pin,
             }
             $pin['id_city'] = $city['id'];
             # District
-            $this->district = new DistrictService($this->db);
-            $district = $this->district->getDistrict(array(
-                'name' => $address['district'],
-                'id_city' => $city['id']
-            ));
-            if(!$district) {
-                $district = array(
+            if(isset($address['district'])) {
+                $this->district = new DistrictService($this->app);
+                $district = $this->district->getDistrict(array(
                     'name' => $address['district'],
                     'id_city' => $city['id']
-                );
-                $district['id'] = $this->district->save($district);
+                ));
+                if(!$district) {
+                    $district = array(
+                        'name' => $address['district'],
+                        'id_city' => $city['id']
+                    );
+                    $district['id'] = $this->district->save($district);
+                }
+                $pin['id_district'] = $district['id'];
             }
-            $pin['id_district'] = $district['id'];
         } else {
-            $this->district = new DistrictService($this->db);
+            $this->district = new DistrictService($this->app);
             $district = $this->district->getDistrict(array('id' => $pin['id_district']));
             $pin['id_city'] = $district['id_city'];
-            $this->city = new CityService($this->db);
+            $this->city = new CityService($this->app);
             $city = $this->city->getCity(array('id' => $district['id_city']));
             $pin['id_state'] = $city['id_state'];
-            $this->state = new StateService($this->db);
+            $this->state = new StateService($this->app);
             $state = $this->state->getState(array('id' => $city['id_state']));
             $pin['id_country'] = $state['id_country'];
         }
         $this->db->insert("pin", $pin);
-        $id = $this->db->lastInsertId('pin_id_seq');
+        $this->current = $pin;
+        $this->current['id'] = $this->db->lastInsertId('pin_id_seq');
         foreach($phones as $phone) {
-            $phone['id_pin'] = $id;
+            $phone['id_pin'] = $this->current['id'];
             $this->db->insert("phone_pin", $phone);
+            $this->current['phones'][] = $phone;
         }
-        return $id;
+        return $this->current['id'];
+    }
+    
+    public function getLastInsetPin()
+    {
+        return $this->current;
     }
 
     public function update($id, $pin)

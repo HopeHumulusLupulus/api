@@ -10,13 +10,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\ServicesLoader;
 use App\RoutesLoader;
-use Carbon\Carbon;
+use App\Handler\MonologTelegramHandler;
 
 date_default_timezone_set('America/Sao_Paulo');
 
 $env = getenv('APP_ENV') ?: 'prod';
 
-require ROOT_PATH . '/v'.VERSION.'/resources/config/'.$env.'.php';
+require ROOT_PATH . '/resources/config/'.$env.'.php';
 
 //handling CORS preflight request
 $app->before(function (Request $request, $app) {
@@ -57,13 +57,23 @@ if($app['db.options']['schema']) {
     $app['db']->query('SET search_path TO '.$app['db.options']['schema']);
 }
 
-$app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . '/v'.VERSION.'/storage/cache'));
+$app->register(new HttpCacheServiceProvider(), array("http_cache.cache_dir" => ROOT_PATH . '/storage/cache'));
 
 $app->register(new MonologServiceProvider(), array(
-    "monolog.logfile" => ROOT_PATH . '/v'.VERSION.'/storage/logs/' . Carbon::now('Europe/London')->format("Y-m-d") . ".log",
+    "monolog.logfile" => ROOT_PATH . '/storage/logs/' . date('Y-m-d') . ".log",
     "monolog.level" => $app["log.level"],
     "monolog.name" => "application"
 ));
+$app['monolog'] = $app->share($app->extend('monolog', function($monolog, $app) {
+    if($app['telegram_bot.log_chat.enable'] && $app['log.level'] == Monolog\Logger::DEBUG ) {
+        $monolog->pushHandler(new MonologTelegramHandler([
+            'token' => $app['telegram_bot.token'],
+            'chat_id' => $app['telegram_bot.log_chat'],
+            'command' => $app['cli.sendmessage']
+        ]));
+    }
+    return $monolog;
+}));
 
 $app->register(new Silex\Provider\SwiftmailerServiceProvider(), array(
     'swiftmailer.options' => $app['swiftmailer.options'],
@@ -71,6 +81,16 @@ $app->register(new Silex\Provider\SwiftmailerServiceProvider(), array(
 ));
 
 $app->register(new Cocur\Slugify\Bridge\Silex\SlugifyServiceProvider());
+
+$request = Request::createFromGlobals();
+$lang = $request->get('lang');
+if($lang) {
+    $app['locale'] = $lang;
+}
+$app->register(new Silex\Provider\TranslationServiceProvider(), array(
+    'locale_fallbacks' => $app['locale_fallbacks'],
+    'translator.domains' => $app['translator.domains'],
+));
 
 //load services
 $servicesLoader = new App\ServicesLoader($app);
@@ -83,7 +103,14 @@ $routesLoader->bindRoutesToControllers();
 $app->error(function (\Exception $e, $code) use ($app) {
     $app['monolog']->addError($e->getMessage());
     $app['monolog']->addError($e->getTraceAsString());
-    return new JsonResponse(array("statusCode" => $code, "message" => $e->getMessage(), "stacktrace" => $e->getTraceAsString()));
+    $response = array(
+        "statusCode" => $code,
+        "message" => $e->getMessage()
+    );
+    if($app['debug']) {
+        $response['stacktrace'] = $e->getTraceAsString();
+    }
+    return new JsonResponse($response);
 });
 
 return $app;
