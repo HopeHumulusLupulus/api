@@ -3,6 +3,10 @@ language: php
 php:
   - 5.4
 
+branches:
+  only:
+    - login
+
 env:
  - APP_ENV=dev
  - EMAIL_CONTACT=test@gmail.com
