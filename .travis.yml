@@ -11,5 +11,6 @@ before_script:
   - wget http://getcomposer.org/composer.phar
   - composer install --prefer-source --dev
   - psql -c 'create database api_testing;' -U postgres
+  - vendor/bin/phinx --configuration=phinx.yml migrate --environment=testing
 
 script: vendor/bin/behat
