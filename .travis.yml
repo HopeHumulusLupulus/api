@@ -1,6 +1,8 @@
 addons:
   postgresql: "9.4"
 
+sudo: required
+
 services:
   - postgresql
 
@@ -19,6 +21,7 @@ install:
 before_script:
   - travis_retry composer self-update
   - composer install --prefer-source --dev
+  - ls -l .
   - psql -c 'create database api_testing;' -U postgres
   - vendor/bin/phinx --configuration=phinx.yml migrate --environment=testing
   - php -S localhost:8000 -t web &
