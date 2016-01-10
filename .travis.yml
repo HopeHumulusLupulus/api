@@ -7,8 +7,11 @@ branches:
   only:
     - login
 
+install:
+  - composer self-update
+
 before_script:
-  - wget http://getcomposer.org/composer.phar
+  - travis_retry composer self-update
   - composer install --prefer-source --dev
   - psql -c 'create database api_testing;' -U postgres
   - vendor/bin/phinx --configuration=phinx.yml migrate --environment=testing
