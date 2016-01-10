@@ -15,13 +15,17 @@ branches:
   only:
     - login
 
+before_install:
+  - mkdir v2
+  - cd v2
+
 install:
   - composer self-update
 
 before_script:
   - travis_retry composer self-update
   - composer install --prefer-source --dev
-  - ls -l .
+  - ls -l . 
   - psql -c 'create database api_testing;' -U postgres
   - vendor/bin/phinx --configuration=phinx.yml migrate --environment=testing
   - php -S localhost:8000 -t web &
