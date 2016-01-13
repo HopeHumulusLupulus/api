@@ -3,13 +3,18 @@
 namespace App\Controllers;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 class GlobalController {
-    public function about()
+    protected function getUser(Request $request)
     {
-        return new JsonResponse([
-            'title' => $this->app['translator']->trans('ABOUT_TITLE'),
-            'body' => $this->app['translator']->trans('ABOUT_BODY'),
-            'footer' => $this->app['translator']->trans('ABOUT_FOOTER')
-        ]);
+        $user = null;
+        $authorizationHeader = $request->headers->get('Authorization', true);
+        if(preg_match('/^Token (?P<token>.*)$/', $authorizationHeader, $matches)) {
+            $user = $this->app['user.service']->validateAccessToken($matches['token']);
+        }
+        if(!$user) {
+            throw new \Exception('INVALID_ACCESS_TOKEN');
+        }
+        return $user;
     }
 }

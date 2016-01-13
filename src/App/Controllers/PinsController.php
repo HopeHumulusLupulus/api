@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Symfony\Component\HttpFoundation;
 
 
-class PinsController
+class UserController extends GlobalController
 {
     public function getAll(Request $request)
     {
@@ -29,11 +29,8 @@ class PinsController
     public function save(Request $request)
     {
         try {
+            $user = $this->getUser($request);
             $post = json_decode($request->getContent(), true);
-            if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
-                throw new \Exception('INVALID_ACCESS_TOKEN');
-            }
-            unset($post['access-token']);
             $post['created_by'] = $user['id'];
 
             if(\is_numeric($response = $this->app['pins.service']->save($post))) {
@@ -58,81 +55,81 @@ class PinsController
 
     public function update($id, Request $request)
     {
-        $post = json_decode($request->getContent(), true);
-        if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
+        try {
+            $user = $this->getUser($request);
+            $post = json_decode($request->getContent(), true);
+            $post['enabled_by'] = $user['id'];
+            return new JsonResponse(array(
+                "id" => $this->app['pins.service']->update(
+                    $request->get('id'),
+                    $post
+                )
+            ));
+        } catch(\Exception $e) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
+                'messages'=>array($this->app['translator']->trans($e->getMessage()))
             )), 403, array('Content-Type' => 'application/json'));
         }
-        unset($post['access-token']);
-        $post['enabled_by'] = $user['id'];
-        return new JsonResponse(array(
-            "id" => $this->app['pins.service']->update(
-                $request->get('id'),
-                $post
-            )
-        ));
     }
 
     public function delete($id, Request $request)
     {
-        $post = json_decode($request->getContent(), true);
-        if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
+        try {
+            $user = $this->getUser($request);
+            return new JsonResponse($this->app['pins.service']->delete($id));
+        } catch(\Exception $e) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
+                'messages'=>array($this->app['translator']->trans($e->getMessage()))
             )), 403, array('Content-Type' => 'application/json'));
         }
-        unset($post['access-token']);
-        return new JsonResponse($this->app['pins.service']->delete($id));
     }
 
     public function ranking($id, Request $request)
     {
-        $post = json_decode($request->getContent(), true);
-        if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
+        try {
+            $user = $this->getUser($request);
+            $post = json_decode($request->getContent(), true);
+            foreach($post['ranking'] as $ranking) {
+                $this->app['pins.service']->saveRanking(
+                    $id,
+                    $user['id'],
+                    $ranking['code'],
+                    $ranking['ranking']
+                );
+            }
+            return new JsonResponse($this->app['pins.service']->getRanking($id));
+        } catch(\Exception $e) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
+                'messages'=>array($this->app['translator']->trans($e->getMessage()))
             )), 403, array('Content-Type' => 'application/json'));
         }
-        unset($post['access-token']);
-        foreach($post['ranking'] as $ranking) {
-            $this->app['pins.service']->saveRanking(
-                $id,
-                $user['id'],
-                $ranking['code'],
-                $ranking['ranking']
-            );
-        }
-        return new JsonResponse($this->app['pins.service']->getRanking($id));
     }
 
     public function checkin($id_pin, Request $request)
     {
-        $post = json_decode($request->getContent(), true);
-        if(!$this->app['pins.service']->getOne($id_pin)) {
-            return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('INVALID_PIN'))
-            )), 403, array('Content-Type' => 'application/json'));
-        }
-        if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
-            return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
-            )), 403, array('Content-Type' => 'application/json'));
-        }
-        $last = $this->app['pins.service']->getLastCheckin($id_pin, $user['id']);
-        if($last) {
-            $last_created = new \DateTime();
-            $last_created->sub(new \DateInterval('P1D'));
-            if($last['created'] > $last_created->format('Y-m-d H-i-s')) {
-                return new Response(json_encode(array(
-                    'messages'=>array($this->app['translator']->trans('EXCEEDED_CHECKIN_LIMIT'))
-                )), 403, array('Content-Type' => 'application/json'));
+        try {
+            $user = $this->getUser($request);
+            $post = json_decode($request->getContent(), true);
+            if(!$this->app['pins.service']->getOne($id_pin)) {
+                throw new \Exception('INVALID_PIN');
             }
+            $last = $this->app['pins.service']->getLastCheckin($id_pin, $user['id']);
+            if($last) {
+                $last_created = new \DateTime();
+                $last_created->sub(new \DateInterval('P1D'));
+                if($last['created'] > $last_created->format('Y-m-d H-i-s')) {
+                    throw new \Exception('EXCEEDED_CHECKIN_LIMIT');
+                }
+            }
+            $this->app['pins.service']->saveCheckin(
+                $id_pin,
+                $user['id']
+            );
+            return new JsonResponse(true);
+        } catch(\Exception $e) {
+            return new Response(json_encode(array(
+                'messages'=>array($this->app['translator']->trans($e->getMessage()))
+            )), 403, array('Content-Type' => 'application/json'));
         }
-        $this->app['pins.service']->saveCheckin(
-            $id_pin,
-            $user['id']
-        );
-        return new JsonResponse(true);
     }
 }

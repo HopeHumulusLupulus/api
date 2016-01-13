@@ -9,7 +9,7 @@ use App\Services\UserService;
 use Symfony\Component\HttpFoundation\Symfony\Component\HttpFoundation;
 
 
-class UserController
+class UserController extends GlobalController
 {
     /**
      * @SWG\Get(
@@ -52,13 +52,8 @@ class UserController
 
     public function update(Request $request)
     {
-        $post = json_decode($request->getContent(), true);
-        if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
-            return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
-            )), 403, array('Content-Type' => 'application/json'));
-        }
         try {
+            $user = $this->getUser($request);
             $this->app['user.service']->save($post, $user);
             return new JsonResponse(true);
         } catch(\Exception $e) {
@@ -70,14 +65,15 @@ class UserController
 
     public function delete(Request $request)
     {
-        $post = json_decode($request->getContent(), true);
-        if(!$user = $this->app['user.service']->validateAccessToken($post['access-token'])) {
+        try {
+            $user = $this->getUser($request);
+            $this->app['user.service']->delete($user['id']);
+            return new JsonResponse(true);
+        } catch(\Exception $e) {
             return new Response(json_encode(array(
-                'messages'=>array($this->app['translator']->trans('INVALID_ACCESS_TOKEN'))
+                    'messages'=>array($this->app['translator']->trans($e->getMessage()))
             )), 403, array('Content-Type' => 'application/json'));
         }
-        $this->app['user.service']->delete($user['id']);
-        return new JsonResponse(true);
     }
 
     public function contact($to, $token, Request $request)

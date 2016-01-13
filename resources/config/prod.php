@@ -52,7 +52,7 @@ $app['translator.domains'] = [
             'ABOUT_FOOTER'           => 'Footer'
         ],
         'pt_BR' =>[
-            'Invalid Access Token'   => 'Chave de acesso inválida',
+            'INVALID_ACCESS_TOKEN'   => 'Chave de acesso inválida',
             'INVALID_PIN'            => 'Este pin não existe',
             'EXCEEDED_CHECKIN_LIMIT' => 'Só é possvel fazer um checkin no dia',
             'INVALID_USER'           => 'Usuário inválido',
