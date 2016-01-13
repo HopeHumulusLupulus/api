@@ -30,6 +30,7 @@ $app['translator.domains'] = [
     'messages' => [
         'en' => [
             'INVALID_ACCESS_TOKEN'   => 'Invalid Access Token',
+            'UNDEFINED_ACCESS_TOKEN' => 'Undefined Access Token',
             'INVALID_PIN'            => 'This pin does not exist',
             'EXCEEDED_CHECKIN_LIMIT' => 'Only is possible make a checkin in day',
             'INVALID_USER'           => 'Invalid user',
@@ -53,6 +54,7 @@ $app['translator.domains'] = [
         ],
         'pt_BR' =>[
             'INVALID_ACCESS_TOKEN'   => 'Chave de acesso inválida',
+            'UNDEFINED_ACCESS_TOKEN' => 'Chave de acesso não definida',
             'INVALID_PIN'            => 'Este pin não existe',
             'EXCEEDED_CHECKIN_LIMIT' => 'Só é possvel fazer um checkin no dia',
             'INVALID_USER'           => 'Usuário inválido',

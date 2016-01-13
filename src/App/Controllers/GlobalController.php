@@ -11,6 +11,8 @@ class GlobalController {
         $authorizationHeader = $request->headers->get('Authorization', true);
         if(preg_match('/^Token (?P<token>.*)$/', $authorizationHeader, $matches)) {
             $user = $this->app['user.service']->validateAccessToken($matches['token']);
+        } else {
+            throw new \Exception('UNDEFINED_ACCESS_TOKEN');
         }
         if(!$user) {
             throw new \Exception('INVALID_ACCESS_TOKEN');
