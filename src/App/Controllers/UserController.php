@@ -76,6 +76,18 @@ class UserController extends GlobalController
         }
     }
 
+    public function me(Request $request)
+    {
+        try {
+            $user = $this->getUser($request);
+            return new JsonResponse($this->app['user.service']->get(['id' => $user['id']]));
+        } catch(\Exception $e) {
+            return new Response(json_encode(array(
+                    'messages'=>array($this->app['translator']->trans($e->getMessage()))
+            )), 403, array('Content-Type' => 'application/json'));
+        }
+    }
+
     public function contact($to, $token, Request $request)
     {
         if(\is_numeric($response = $this->app['user.service']->contact(

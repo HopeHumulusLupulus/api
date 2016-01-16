@@ -78,6 +78,7 @@ class RoutesLoader extends Route
         $api->post('/user/login/email-token', 'user.controller:login_email_token');
         $api->post('/user/login/email-token/{token}', 'user.controller:login_token_confirm');
         $api->post('/user/login/password', 'user.controller:login_password');
+        $api->get('/user/me', 'user.controller:me');
 
         $api->get('/state', "state.controller:getAll");
 
