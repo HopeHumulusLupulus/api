@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Symfony\Component\HttpFoundation;
 
 
-class UserController extends GlobalController
+class PinsController extends GlobalController
 {
     public function getAll(Request $request)
     {
