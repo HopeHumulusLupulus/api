@@ -5,7 +5,7 @@ use Monolog\Handler\AbstractHandler;
 use Telegram\Bot\Api;
 class MonologTelegramHandler extends MailHandler {
     /**
-     * 
+     *
      * @var Api
      */
     private $telegram;
@@ -14,15 +14,20 @@ class MonologTelegramHandler extends MailHandler {
     }
     protected function send($content, array $records)
     {
-        pclose(popen('php '.$this->arguments['command'].
-            base64_encode(serialize([
-                'params' => [
-                    'chat_id' => $this->arguments['chat_id'],
-                    'text' => getenv('APP_ENV').'->'.$content,
-                    'disable_web_page_preview' => true
-                ],
-                'token' => $this->arguments['token']
-            ])).' &', 'r'
-        ));
+        if(!is_array($this->arguments['chat_id'])) {
+            $this->arguments['chat_id'] = array($this->arguments['chat_id']);
+        }
+        foreach($this->arguments['chat_id'] as $chat_id) {
+            pclose(popen('php '.$this->arguments['command'].
+                base64_encode(serialize([
+                    'params' => [
+                        'chat_id' => $chat_id,
+                        'text' => getenv('APP_ENV').'->'.$content,
+                        'disable_web_page_preview' => true
+                    ],
+                    'token' => $this->arguments['token']
+                ])).' &', 'r'
+            ));
+        }
     }
 }
