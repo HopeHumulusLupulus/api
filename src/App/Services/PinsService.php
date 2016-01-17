@@ -41,7 +41,6 @@ class PinsService extends BaseService
             ->join('p', 'city', 'c', 'c.id = d.id_city OR c.id = p.id_city')
             ->join('c', 'state', 's', 's.id = c.id_state')
             ->join('s', 'country', 'co', 'co.id = s.id_country')
-            ->andWhere('p.enabled IS NOT NULL')
             ->andWhere('p.deleted IS NULL');
 
         foreach($filters as $type => $values) {
@@ -59,6 +58,11 @@ class PinsService extends BaseService
                         ->setParameter('maxLat', $values['maxLat'])
                         ->setParameter('maxLng', $values['maxLng']);
                     break;
+                case 'name':
+                    $queryBuilder
+                        ->andWhere(
+                            $queryBuilder->expr()->like('p.name', "'%{$filters[$type]}%'")
+                        );
             }
         }
 
@@ -79,6 +83,7 @@ class PinsService extends BaseService
         $queryBuilder
             ->select($select)
             ->leftJoin('p', 'pin_checkin', 'pc', 'pc.id_pin = p.id')
+            ->andWhere('p.enabled IS NOT NULL')
             ->groupBy([
                 'p.id',
                 'co.name',
@@ -358,13 +363,18 @@ SELECT pin.id AS id_pin,
                 $this->db->insert("phone_pin", $phone);
             }
         }
-        if($pin['enabled_by']) {
-            $stmt = $this->db->prepare("SELECT enabled FROM pin WHERE id = :id");
-            $stmt->bindValue(':id', $id);
-            $stmt->execute();
-            $current_data = $stmt->fetch();
-            if(!$current_data['enabled']) {
-                $pin['enabled'] = date('Y-m-d H:i:s');
+        if(array_key_exists('enabled_by', $pin)) {
+            if($pin['enabled_by']) {
+                $stmt = $this->db->prepare("SELECT enabled FROM pin WHERE id = :id");
+                $stmt->bindValue(':id', $id);
+                $stmt->execute();
+                $current_data = $stmt->fetch();
+                if(!$current_data['enabled']) {
+                    $pin['enabled'] = date('Y-m-d H:i:s');
+                }
+            } else {
+                $pin['enabled'] = null;
+                $pin['enabled_by'] = null;
             }
         }
         $this->db->update('pin', $pin, array('id' => $id));
