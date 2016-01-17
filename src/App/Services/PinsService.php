@@ -12,49 +12,88 @@ class PinsService extends BaseService
      */
     private $EmailService;
 
-    public function getAll($minLat, $minLng, $maxLat, $maxLng)
+    /**
+     *
+     * @param array $filters
+     * @param int|null $page
+     * @return array
+     */
+    public function getAll($filters, $page = null)
     {
-        $stmt = $this->db->prepare("
-SELECT p.id,
-       co.name AS country,
-       s.abbreviation AS state,
-       c.name AS city,
-       d.name AS district,
-       p.name,
-       p.lat,
-       p.lng,
-       p.address,
-       p.link,
-       COUNT(pc.id) AS checkins
-  FROM pin p
-  LEFT JOIN district d ON d.id = p.id_district
-  JOIN city c ON c.id = d.id_city OR c.id = p.id_city
-  JOIN state s ON s.id = c.id_state
-  JOIN country co ON co.id = s.id_country
-  LEFT JOIN pin_checkin pc ON pc.id_pin = p.id
- WHERE p.lat BETWEEN :minLat AND :maxLat
-       AND p.lng BETWEEN :minLng AND :maxLng
-       AND p.enabled IS NOT NULL
-       AND p.deleted IS NULL
- GROUP BY p.id,
-          co.name,
-          s.abbreviation,
-          c.name,
-          d.name,
-          p.name,
-          p.lat,
-          p.lng,
-          p.address,
-          p.link
- ORDER BY p.name"
-            );
-        $stmt->bindValue(':minLat', $minLat);
-        $stmt->bindValue(':minLng', $minLng);
-        $stmt->bindValue(':maxLat', $maxLat);
-        $stmt->bindValue(':maxLng', $maxLng);
+        $queryBuilder = $this->db->createQueryBuilder();
+        $select = [
+            'p.id',
+            's.abbreviation AS state',
+            'co.name AS country',
+            's.abbreviation AS state',
+            'c.name AS city',
+            'd.name AS district',
+            'p.name',
+            'p.lat',
+            'p.lng',
+            'p.address',
+            'p.link',
+            'COUNT(pc.id) AS checkins'
+        ];
+        $queryBuilder
+            ->from('pin', 'p')
+            ->leftJoin('p', 'district', 'd', 'd.id = p.id_district')
+            ->join('p', 'city', 'c', 'c.id = d.id_city OR c.id = p.id_city')
+            ->join('c', 'state', 's', 's.id = c.id_state')
+            ->join('s', 'country', 'co', 'co.id = s.id_country')
+            ->andWhere('p.enabled IS NOT NULL')
+            ->andWhere('p.deleted IS NULL');
+
+        foreach($filters as $type => $values) {
+            switch ($type) {
+                case 'latLng':
+                    $queryBuilder
+                        ->andWhere(
+                            $queryBuilder->expr()->andX(
+                                'p.lat BETWEEN :minLat AND :maxLat',
+                                'p.lng BETWEEN :minLng AND :maxLng'
+                            )
+                        )
+                        ->setParameter('minLat', $values['minLat'])
+                        ->setParameter('minLng', $values['minLng'])
+                        ->setParameter('maxLat', $values['maxLat'])
+                        ->setParameter('maxLng', $values['maxLng']);
+                    break;
+            }
+        }
+
+        if(is_int($page)) {
+            $countQueryBuilder = clone $queryBuilder;
+            $countQueryBuilder
+                ->select('count(*) AS total');
+            if($stmt = $countQueryBuilder->execute()) {
+                $this->setTotalRows((int)$stmt->fetchColumn());
+
+                $select[] = 'p.enabled';
+                $queryBuilder
+                    ->setFirstResult($page)
+                    ->setMaxResults(20)
+                    ->orderBy('p.id');
+            }
+        }
+        $queryBuilder
+            ->select($select)
+            ->leftJoin('p', 'pin_checkin', 'pc', 'pc.id_pin = p.id')
+            ->groupBy([
+                'p.id',
+                'co.name',
+                's.abbreviation',
+                'c.name',
+                'd.name',
+                'p.name',
+                'p.lat',
+                'p.lng',
+                'p.address',
+                'p.link'
+            ]);
 
         $return = array();
-        if($stmt->execute()) {
+        if($stmt = $queryBuilder->execute()) {
             $pin_ids = array();
             foreach($stmt->fetchAll() as $row) {
                 $row['lat'] = (float)$row['lat'];
@@ -87,6 +126,16 @@ SELECT pin.id AS id_pin,
             }
         }
         return $return;
+    }
+
+    public function setTotalRows($total)
+    {
+        $this->totalRows = $total;
+    }
+
+    public function getTotalRows()
+    {
+        return $this->totalRows;
     }
 
     public function getOne($id)
@@ -290,7 +339,7 @@ SELECT pin.id AS id_pin,
         }
         return $this->current['id'];
     }
-    
+
     public function getLastInsetPin()
     {
         return $this->current;

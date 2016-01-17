@@ -11,12 +11,14 @@ class PinsController extends GlobalController
 {
     public function getAll(Request $request)
     {
-        return new JsonResponse($this->app['pins.service']->getAll(
-            $request->get('minLat'),
-            $request->get('minLng'),
-            $request->get('maxLat'),
-            $request->get('maxLng')
-        ));
+        return new JsonResponse($this->app['pins.service']->getAll([
+            'latLng' => [
+                'minLat' => $request->get('minLat'),
+                'minLng' => $request->get('minLng'),
+                'maxLat' => $request->get('maxLat'),
+                'maxLng' => $request->get('maxLng')
+            ]
+        ]));
     }
 
     public function getOne(Request $request)
@@ -24,6 +26,37 @@ class PinsController extends GlobalController
         return new JsonResponse($this->app['pins.service']->getOne(
             $request->get('id')
         ));
+    }
+
+    public function listPins(Request $request)
+    {
+        $filters = array();
+        if($request->get('minLat')) {
+            $filters['latLng'] = [
+                'minLat' => $request->get('minLat'),
+                'minLng' => $request->get('minLng'),
+                'maxLat' => $request->get('maxLat'),
+                'maxLng' => $request->get('maxLng')
+            ];
+        }
+        $return['data'] = $this->app['pins.service']->getAll(
+            $filters,
+            $request->get('page') * $this->app['pins.per_page']
+        );
+        $return['meta'] = [
+            'pagination' => [
+                'total' => $this->app['pins.service']->getTotalRows(),
+                'per_page' => $this->app['pins.per_page'],
+                'current_page' => (int)$request->get('page')+1,
+                'last_page' => floor($this->app['pins.service']->getTotalRows() / $this->app['pins.per_page']) + 1,
+                'from' => ($this->app['pins.per_page'] * (int)$request->get('page'))?:1,
+            ]
+        ];
+        $return['meta']['pagination']['to'] =
+            $return['meta']['pagination']['total'] - $return['meta']['pagination']['from'] < $return['meta']['pagination']['per_page']
+                ? $return['meta']['pagination']['total']
+                : $return['meta']['pagination']['per_page'] * $return['meta']['pagination']['current_page'] -1;
+        return new JsonResponse($return);
     }
 
     public function save(Request $request)

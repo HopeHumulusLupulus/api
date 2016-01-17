@@ -54,6 +54,7 @@ class RoutesLoader extends Route
 
         # pins
         $api->get('/pins', "pins.controller:getAll");
+        $api->get('/pins/list', "pins.controller:listPins");
         $api->get('/pin/{id}', "pins.controller:getOne");
         $api->post('/pin', "pins.controller:save");
         $api->put('/pin/{id}', "pins.controller:update");
