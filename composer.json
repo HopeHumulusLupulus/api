@@ -16,7 +16,8 @@
 		}
 	],
 	"require" : {
-		"silex/silex" : "1.2.*dev",
+	    "php": ">=5.5.9",
+		"silex/silex" : "1.3.*dev",
 		"monolog/monolog" : "1.12.*@dev",
 		"doctrine/dbal" : "2.5.1",
 		"robmorgan/phinx" : "dev-master",
