@@ -22,6 +22,18 @@ class UserController extends GlobalController
         return new JsonResponse($this->app['user.service']->get($args));
     }
 
+    public function listUsers(Request $request, $args)
+    {
+        try {
+            $user = $this->getUser($request);
+            return new JsonResponse($this->app['user.service']->get($args));
+        } catch (\Exception $e) {
+            return new Response(json_encode(array(
+                'messages'=>array($this->app['translator']->trans($e->getMessage()))
+            )), 403, array('Content-Type' => 'application/json'));
+        }
+    }
+
     public function save(Request $request)
     {
         try {
