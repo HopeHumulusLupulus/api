@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a8386a7fdbc1a1f48f9ea6c38adba438",
-    "content-hash": "60203ce95414441cbebafb2d5f7a574c",
+    "hash": "bf176ae97af99d4c979bb16316e0481c",
+    "content-hash": "60931d8138832fcda9120058b13a9f5d",
     "packages": [
         {
             "name": "cocur/slugify",
@@ -1141,12 +1141,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silexphp/Silex.git",
-                "reference": "722d2493180581268ba47b8bf7275afec56b2e9d"
+                "reference": "e6f4cdea22e9ce02872cb5912cfd609fef395389"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silexphp/Silex/zipball/722d2493180581268ba47b8bf7275afec56b2e9d",
-                "reference": "722d2493180581268ba47b8bf7275afec56b2e9d",
+                "url": "https://api.github.com/repos/silexphp/Silex/zipball/e6f4cdea22e9ce02872cb5912cfd609fef395389",
+                "reference": "e6f4cdea22e9ce02872cb5912cfd609fef395389",
                 "shasum": ""
             },
             "require": {
@@ -1210,7 +1210,7 @@
             "keywords": [
                 "microframework"
             ],
-            "time": "2016-01-06 15:02:55"
+            "time": "2016-01-19 12:08:18"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -3496,6 +3496,8 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">=5.5.9"
+    },
     "platform-dev": []
 }
