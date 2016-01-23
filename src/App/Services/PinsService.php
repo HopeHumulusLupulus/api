@@ -61,7 +61,7 @@ class PinsService extends BaseService
                 case 'name':
                     $queryBuilder
                         ->andWhere(
-                            $queryBuilder->expr()->like('p.name', "'%{$filters[$type]}%'")
+                            $queryBuilder->expr()->comparison('p.name', 'ILIKE', "'%{$filters[$type]}%'")
                         );
             }
         }
