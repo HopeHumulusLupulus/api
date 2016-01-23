@@ -22,11 +22,20 @@ class UserController extends GlobalController
         return new JsonResponse($this->app['user.service']->get($args));
     }
 
-    public function listUsers(Request $request, $args)
+    public function listUsers(Request $request)
     {
         try {
             $user = $this->getUser($request);
-            return new JsonResponse($this->app['user.service']->get($args));
+            $filters = array();
+            if($request->get('name')) {
+                $filters['name'] = $request->get('name');
+            }
+            $return['data'] = $this->app['pins.service']->getAll(
+                $filters,
+                $request->get('page') * $this->app['pins.per_page']
+            );
+            $return['meta'] = parent::getPaginatorMetadata($request);
+            return new JsonResponse($return);
         } catch (\Exception $e) {
             return new Response(json_encode(array(
                 'messages'=>array($this->app['translator']->trans($e->getMessage()))

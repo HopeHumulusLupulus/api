@@ -20,6 +20,7 @@ class UserService extends BaseService
 
     public function get($args)
     {
+        $queryBuilder = $this->db->createQueryBuilder();
         $join = $where = $data = array();
         foreach($args as $field => $value) {
             switch($field) {
