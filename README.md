@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/HopeHumulusLupulus/api.svg?branch=v3)](https://travis-ci.org/HopeHumulusLupulus/api) [![Deployment status from DeployBot](https://lupulocalizador.deploybot.com/badge/45290642062818/61119.svg)](http://deploybot.com)
 You need at least php **5.4.*** with **SQLite extension** enabled and **Composer**
     
     composer install 
