@@ -66,14 +66,16 @@ class PinsController extends GlobalController
 
             if(\is_numeric($response = $this->app['pins.service']->save($post))) {
                 $pin = $this->app['pins.service']->getLastInsetPin();
-                if($this->app['telegram_bot.token']) {
+                if($this->app['telegram_bot.token'] && $this->app['telegram_bot.log_chat']) {
                     $telegram = new \Telegram\Bot\Api($this->app['telegram_bot.token']);
-                    $telegram->sendMessage([
-                        'chat_id' => $this->app['telegram_bot.log_chat'],
-                        'text' => '```'.print_r($pin, true).'```',
-                        'disable_web_page_preview' => true,
-                        'parse_mode' => 'markdown'
-                    ]);
+                    foreach($this->app['telegram_bot.log_chat'] as $chat_id) {
+                        $telegram->sendMessage([
+                            'chat_id' => $chat_id,
+                            'text' => '```'.print_r($pin, true).'```',
+                            'disable_web_page_preview' => true,
+                            'parse_mode' => 'markdown'
+                        ]);
+                    }
                 }
                 return new JsonResponse(array("id" => $response));
             } else {
