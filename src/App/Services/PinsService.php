@@ -43,7 +43,7 @@ class PinsService extends BaseService
             ->join('s', 'country', 'co', 'co.id = s.id_country')
             ->andWhere('p.deleted IS NULL');
 
-        foreach($filters as $type => $values) {
+        foreach($filters as $type => $value) {
             switch ($type) {
                 case 'latLng':
                     $queryBuilder
@@ -53,15 +53,28 @@ class PinsService extends BaseService
                                 'p.lng BETWEEN :minLng AND :maxLng'
                             )
                         )
-                        ->setParameter('minLat', $values['minLat'])
-                        ->setParameter('minLng', $values['minLng'])
-                        ->setParameter('maxLat', $values['maxLat'])
-                        ->setParameter('maxLng', $values['maxLng']);
+                        ->setParameter('minLat', $value['minLat'])
+                        ->setParameter('minLng', $value['minLng'])
+                        ->setParameter('maxLat', $value['maxLat'])
+                        ->setParameter('maxLng', $value['maxLng']);
                     break;
                 case 'name':
                     $queryBuilder
                         ->andWhere(
-                            $queryBuilder->expr()->comparison('p.name', 'ILIKE', "'%{$filters[$type]}%'")
+                            $queryBuilder->expr()->comparison('p.name', 'ILIKE', "'%{$value}%'")
+                        );
+                    break;
+                case 'id':
+                    $queryBuilder
+                        ->andWhere(
+                            $queryBuilder->expr()->andX('p.id = :pinId')
+                        )
+                        ->setParameter('pinId', $value);
+                    break;
+                case 'enabled':
+                    $queryBuilder
+                        ->andWhere(
+                            $queryBuilder->expr()->andX('p.enabled IS '.($value?'NOT':'').' NULL')
                         );
             }
         }
@@ -79,11 +92,13 @@ class PinsService extends BaseService
                     ->setMaxResults(20)
                     ->orderBy('p.id');
             }
+        } else {
+            $queryBuilder
+                ->andWhere('p.enabled IS NOT NULL');
         }
         $queryBuilder
             ->select($select)
             ->leftJoin('p', 'pin_checkin', 'pc', 'pc.id_pin = p.id')
-            ->andWhere('p.enabled IS NOT NULL')
             ->groupBy([
                 'p.id',
                 'co.name',

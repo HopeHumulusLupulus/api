@@ -40,7 +40,8 @@
 	"autoload" : {
 		"psr-0" : {
             "App" : "src/",
-            "Cli" : "src/"
+            "Cli" : "src/",
+            "PhinxFix" : "src/"
 		}
 	},
 	"scripts": {

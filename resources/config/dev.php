@@ -23,3 +23,4 @@ $app['swiftmailer.options'] = array(
     'auth_mode' => 'login'
 );
 $app['swiftmailer.use_spool'] = false;
+return $app;

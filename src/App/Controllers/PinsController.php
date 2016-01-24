@@ -44,6 +44,12 @@ class PinsController extends GlobalController
             if($request->get('name')) {
                 $filters['name'] = $request->get('name');
             }
+            if($request->get('id')) {
+                $filters['id'] = $request->get('id');
+            }
+            if($request->get('enabled') !== null) {
+                $filters['enabled'] = $request->get('enabled');
+            }
             $return['data'] = $this->app['pins.service']->getAll(
                 $filters,
                 $request->get('page') * $this->app['pins.per_page']
