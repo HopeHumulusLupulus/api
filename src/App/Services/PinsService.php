@@ -212,8 +212,7 @@ SELECT pin.id AS id_pin,
             );
             $pin['ranking'] = $this->getRanking($pin['id']);
             if($stmt->execute()) {
-                $row = $stmt->fetch();
-                if($row) {
+                while($row = $stmt->fetch()) {
                     $pin['phones'][] = array(
                         'number' => $row['number'],
                         'type'   => $row['type']
