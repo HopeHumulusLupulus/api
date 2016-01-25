@@ -25,7 +25,7 @@ before_script:
   - travis_retry composer self-update
   - composer install --prefer-source
   - psql -c 'create database api_testing;' -U postgres
-  - vendor/bin/phinx --configuration=phinx.yml migrate --environment=testing
+  - vendor/bin/phinx migrate --environment=testing
   - php -S localhost:8000 -t web &
 
 script: vendor/bin/behat
