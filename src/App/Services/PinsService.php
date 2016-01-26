@@ -18,7 +18,7 @@ class PinsService extends BaseService
      * @param int|null $page
      * @return array
      */
-    public function getAll($filters, $page = null)
+    public function getAll($filters = array(), $page = null)
     {
         $queryBuilder = $this->db->createQueryBuilder();
         $select = [
@@ -119,7 +119,9 @@ class PinsService extends BaseService
                 $row['lat'] = (float)$row['lat'];
                 $row['lng'] = (float)$row['lng'];
                 $pin_ids[] = $row['id'];
-                $row['ranking'] = $this->getRanking($row['id']);
+                if(array_key_exists('id', $filters)) {
+                    $row['ranking'] = $this->getRanking($row['id']);
+                }
                 $return['B_'.$row['id']] = $row;
             }
             $stmt = $this->db->executeQuery("
@@ -160,65 +162,8 @@ SELECT pin.id AS id_pin,
 
     public function getOne($id)
     {
-        $stmt = $this->db->prepare("
-SELECT p.id,
-       co.name AS country,
-       s.abbreviation AS state,
-       c.name AS city,
-       d.name AS district,
-       p.name,
-       p.lat,
-       p.lng,
-       p.address,
-       p.link,
-       COUNT(pc.id) AS checkins
-  FROM pin p
-  LEFT JOIN district d ON d.id = p.id_district
-  JOIN city c ON c.id = d.id_city OR c.id = p.id_city
-  JOIN state s ON s.id = c.id_state
-  JOIN country co ON co.id = s.id_country
-  LEFT JOIN pin_checkin pc ON pc.id_pin = p.id
- WHERE p.id = :id
- GROUP BY p.id,
-          co.name,
-          s.abbreviation,
-          c.name,
-          d.name,
-          p.name,
-          p.lat,
-          p.lng,
-          p.address,
-          p.link"
-            );
-        $stmt->bindValue(':id', $id);
-
-        if($stmt->execute()) {
-            $pin = $stmt->fetch();
-            $pin['lat'] = (float)$pin['lat'];
-            $pin['lng'] = (float)$pin['lng'];
-            $stmt = $this->db->executeQuery("
-SELECT pin.id AS id_pin,
-       p.number,
-       CASE WHEN pt.id <> 3 THEN pt.type
-            WHEN pt.id = 3 AND p.other_type IS NOT NULL THEN p.other_type
-            ELSE pt.type
-        END AS type
-  FROM phone_pin p
-  JOIN phone_type pt ON pt.id = p.id_phone_type
-  JOIN pin ON pin.id = p.id_pin
- WHERE pin.id IN (?)",
-                array(array($pin['id'])),
-                array(Connection::PARAM_INT_ARRAY)
-            );
-            $pin['ranking'] = $this->getRanking($pin['id']);
-            if($stmt->execute()) {
-                while($row = $stmt->fetch()) {
-                    $pin['phones'][] = array(
-                        'number' => $row['number'],
-                        'type'   => $row['type']
-                    );
-                }
-            }
+        if($pin = $this->getAll(['id' => $id])) {
+            $pin = $pin['B_'.$id];
         }
         return $pin;
     }
