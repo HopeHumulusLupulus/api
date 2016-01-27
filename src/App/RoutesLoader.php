@@ -62,17 +62,7 @@ class RoutesLoader extends Route
         $api->post('/pin/ranking/{id}', "pins.controller:ranking");
         $api->post('/pin/checkin/{id_pin}', "pins.controller:checkin");
         # user
-        $api->get('/user/{args}', "user.controller:get")
-            ->assert('args', '^(email|phone):.*')
-            ->convert('args', function ($args) {
-                $args = explode('/', $args);
-                $return = array();
-                foreach ($args as $value) {
-                    $value = explode(':', $value);
-                    $return[$value[0]] = $value[1];
-                }
-                return $return;
-            });
+        $api->get('/user', "user.controller:get");
         $api->post('/user', "user.controller:save");
         $api->put('/user', "user.controller:update");
         $api->delete('/user', "user.controller:delete");

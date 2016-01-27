@@ -17,9 +17,15 @@ class UserController extends GlobalController
      *     @SWG\Response(response="200", description="An example resource")
      * )
      */
-    public function get(Request $request, $args)
+    public function get(Request $request)
     {
-        return new JsonResponse($this->app['user.service']->get($args));
+        if($request->get('email')) {
+            $filters['email'] = $request->get('email');
+        }
+        if($request->get('phone')) {
+            $filters['phone'] = $request->get('phone');
+        }
+        return new JsonResponse($this->app['user.service']->get($filters));
     }
 
     public function listUsers(Request $request)
@@ -30,11 +36,11 @@ class UserController extends GlobalController
             if($request->get('name')) {
                 $filters['name'] = $request->get('name');
             }
-            $return['data'] = $this->app['pins.service']->getAll(
+            $return['data'] = $this->app['user.service']->getAll(
                 $filters,
-                $request->get('page') * $this->app['pins.per_page']
+                $request->get('page') * $this->app['user.per_page']
             );
-            $return['meta'] = parent::getPaginatorMetadata($request);
+            $return['meta'] = parent::getPaginatorMetadata($request, $this->app['user.service']->getTotalRows(), $this->app['user.per_page']);
             return new JsonResponse($return);
         } catch (\Exception $e) {
             return new Response(json_encode(array(

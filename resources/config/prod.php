@@ -12,6 +12,7 @@ $app['db'] = array(
     'charset'  => 'UTF8'
 );
 $app['pins.per_page'] = 20;
+$app['user.per_page'] = 20;
 $app['telegram_bot.token'] = getenv('TELEGRAM_BOT_TOKEN');
 $app['telegram_bot.log_chat'] = getenv('TELEGRAM_BOT_LOG_CHAT');
 $app['telegram_bot.contact_chat'] = getenv('TELEGRAM_BOT_CONTACT_CHAT');

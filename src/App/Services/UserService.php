@@ -18,68 +18,119 @@ class UserService extends BaseService
      */
     private $EmailService;
 
-    public function get($args)
+    public function getAll($filters = array(), $page = null)
     {
         $queryBuilder = $this->db->createQueryBuilder();
-        $join = $where = $data = array();
-        foreach($args as $field => $value) {
-            switch($field) {
+        $select = [
+            'ua.id AS code',
+            'ua.name',
+            'ua.gender',
+            'ua.birth',
+            'ua.lang',
+            'count(DISTINCT pc.id) AS total_checkin',
+            'count(DISTINCT pc.id_pin) AS total_visited',
+            'count(DISTINCT p.id) AS total_created'
+        ];
+        $queryBuilder
+            ->from('user_account', 'ua')
+            ->leftJoin('ua', 'pin_checkin', 'pc', 'pc.id_user_account = ua.id')
+            ->leftJoin('ua', 'email_user_account', 'eua', 'eua.id_user_account = ua.id')
+            ->leftJoin('ua', 'pin', 'p', 'p.created_by = eua.email')
+            ->andWhere('ua.deleted IS NULL')
+            ->groupBy(['ua.id', 'ua.name']);
+        $has_filter = false;
+        foreach($filters as $type => $value) {
+            switch ($type) {
                 case 'email':
-                    $where[] = 'eua.email = :email';
-                    $data[$field] = strtolower(trim($value));
+                    $queryBuilder
+                        ->andWhere(
+                            $queryBuilder->expr()->andX('eua.email = :email')
+                        )
+                        ->setParameter('email', strtolower(trim($value)));
+                    $has_filter = true;
                     break;
                 case 'phone':
-                    $where[] = 'pua.number = :number';
-                    $data['number'] = $value;
-                    $join[] = 'JOIN phone_user_account pua ON pua.id_user_account = ua.id';
+                    $queryBuilder
+                        ->join('ua', 'phone_user_account', 'pua', 'pua.id_user_account = ua.id')
+                        ->andWhere(
+                            $queryBuilder->expr()->andX('pua.number = :number')
+                        )
+                        ->setParameter('number', trim($value));
+                    $has_filter = true;
                     break;
                 case 'id':
-                    $where[] = 'ua.id = :id';
-                    $data['id'] = $value;
+                    $queryBuilder
+                        ->andWhere(
+                            $queryBuilder->expr()->andX('ua.id = :userAccountId')
+                        )
+                        ->setParameter('userAccountId', $value);
+                    $has_filter = true;
+                    break;
             }
         }
-        if($data) {
-            $stmt = $this->db->prepare(
-                "SELECT ua.id AS code, ua.name, ua.gender, ua.birth,\n".
-                "       ua.lang,\n".
-                "       count(DISTINCT pc.id) AS total_checkin,\n".
-                "       count(DISTINCT pc.id_pin) AS total_visited,\n".
-                "       count(DISTINCT pin.id) AS total_created\n".
-                "  FROM user_account ua\n".
-                "  LEFT JOIN pin_checkin pc ON pc.id_user_account = ua.id\n".
-                "  LEFT JOIN email_user_account eua ON eua.id_user_account = ua.id\n".
-                "  LEFT JOIN pin ON pin.created_by = eua.email\n".
-                implode("\n ", $join)."\n".
-                " WHERE ".implode("\n  AND ", $where).
-                "   AND ua.deleted IS NULL".
-                " GROUP BY ua.id, ua.name"
-            );
-            foreach($data as $param => $value) {
-                $stmt->bindValue($param, $value);
+        $queryBuilder
+            ->select($select);
+
+        if(is_int($page)) {
+            $countQueryBuilder = clone $queryBuilder;
+            $countQueryBuilder
+                ->select('count(*) AS total');
+            if($stmt = $countQueryBuilder->execute()) {
+                $this->setTotalRows((int)$stmt->fetchColumn());
+
+                $queryBuilder
+                    ->setFirstResult($page)
+                    ->setMaxResults(20)
+                    ->orderBy('ua.name');
             }
-            if($stmt->execute() && $user = $stmt->fetch()) {
-                if($emails = $this->getEmailService()->get(array(
-                    'id_user_account' => $user['code']
-                ))) {
-                    foreach($emails as $email) {
-                        $user['email'][] = array(
-                            'email' => $email['email'],
-                            'type'  => $email['type']
-                        );
-                    }
+        }
+        $data = array();
+        if($has_filter || is_int($page)) {
+            if($stmt = $queryBuilder->execute()) {
+                while($row = $stmt->fetch()) {
+                    $return[$row['code']] = $row;
                 }
-                if($phones = $this->getPhoneService()->get(array(
-                    'id_user_account' => $user['code']
-                ))) {
-                    foreach($phones as $phone) {
-                        $user['phone'][] = array(
-                            'number' => $phone['number'],
-                            'type'  => $phone['type']
-                        );
+                if($return) {
+                    if($emails = $this->getEmailService()->get(array(
+                        'id_user_account' => array_keys($return)
+                    ))) {
+                        foreach($emails as $email) {
+                            $return[$email['id_user_account']]['email'][] = array(
+                                'email' => $email['email'],
+                                'type'  => $email['type']
+                            );
+                        }
                     }
+                    if($phones = $this->getPhoneService()->get(array(
+                        'id_user_account' => array_keys($return)
+                    ))) {
+                        foreach($phones as $phone) {
+                            $return[$phone['id_user_account']]['phone'][] = array(
+                                'number' => $phone['number'],
+                                'type'  => $phone['type']
+                            );
+                        }
+                    }
+                    return $return;
                 }
-                return $user;
             }
+        }
+    }
+
+    public function setTotalRows($total)
+    {
+        $this->totalRows = $total;
+    }
+
+    public function getTotalRows()
+    {
+        return $this->totalRows;
+    }
+
+    public function get($filters)
+    {
+        if($user = $this->getAll($filters)) {
+            return current($user);
         }
     }
 

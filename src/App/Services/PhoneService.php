@@ -18,8 +18,12 @@ class PhoneService extends BaseService
             }
         }
         if(\array_key_exists('id_user_account', $param)) {
-            $where[] = 'pua.id_user_account = :id_user_account';
-            $data['id_user_account'] = $param['id_user_account'];
+            if(is_array($param['id_user_account'])) {
+                $where[] = 'pua.id_user_account IN('.implode(', ', $param['id_user_account']).')';
+            } else {
+                $where[] = 'pua.id_user_account = :id_user_account';
+                $data['id_user_account'] = $param['id_user_account'];
+            }
         }
         if($where) {
             $stmt = $this->db->prepare(

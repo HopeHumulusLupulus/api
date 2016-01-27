@@ -23,21 +23,21 @@ class GlobalController {
         return $user;
     }
 
-    protected function getPaginatorMetadata(Request $request)
+    protected function getPaginatorMetadata(Request $request, $total, $per_page = 20)
     {
         $return['meta'] = [
             'pagination' => [
-                'total' => $this->app['pins.service']->getTotalRows(),
-                'per_page' => $this->app['pins.per_page'],
+                'total' => $total,
+                'per_page' => $per_page,
                 'current_page' => (int)$request->get('page'),
-                'last_page' => floor($this->app['pins.service']->getTotalRows() / $this->app['pins.per_page']),
-                'from' => ($this->app['pins.per_page'] * (int)$request->get('page'))?:1,
+                'last_page' => floor($total / $per_page),
+                'from' => ($per_page * (int)$request->get('page'))?:1,
             ]
         ];
         $return['meta']['pagination']['to'] =
-        ($return['meta']['pagination']['total'] -1 - $return['meta']['pagination']['from']) < $return['meta']['pagination']['per_page']
-        ? $return['meta']['pagination']['total']
-        : $return['meta']['pagination']['per_page'] * ($return['meta']['pagination']['current_page']+1);
+            ($return['meta']['pagination']['total'] -1 - $return['meta']['pagination']['from']) < $return['meta']['pagination']['per_page']
+                ? $return['meta']['pagination']['total']
+                : $return['meta']['pagination']['per_page'] * ($return['meta']['pagination']['current_page']+1);
 
         $queryString = $request->query->all();
         $path = $request->getPathInfo();

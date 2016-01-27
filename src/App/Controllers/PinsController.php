@@ -54,7 +54,7 @@ class PinsController extends GlobalController
                 $filters,
                 $request->get('page') * $this->app['pins.per_page']
             );
-            $return['meta'] = parent::getPaginatorMetadata($request);
+            $return['meta'] = parent::getPaginatorMetadata($request, $this->app['pins.service']->getTotalRows(), $this->app['pins.per_page']);
             return new JsonResponse($return);
         } catch (\Exception $e) {
             return new Response(json_encode(array(
