@@ -1,7 +1,5 @@
 <?php
-
 use Phinx\Migration\AbstractMigration;
-
 class First extends AbstractMigration
 {
     /**
@@ -16,41 +14,34 @@ class First extends AbstractMigration
     {
     }
     */
-
     /**
      * Migrate Up.
      */
     public function up()
     {
-        $schema = getenv('PHINX_SCHEMA');
-        $this->query('CREATE SCHEMA IF NOT EXISTS '.$schema);
-        $this->query('SET search_path TO '.$schema);
+        $this->query('SET search_path TO '.$this->getAdapter()->getOption('schema'));
         $country = $this->table('country')
             ->addColumn('name', 'string', array('limit' => 50))
             ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'));
         $country->save();
-
         $state = $this->table('state')
             ->addColumn('name', 'string', array('limit' => 50))
             ->addColumn('id_country', 'integer')
             ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
             ->addForeignKey('id_country', $country, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $state->save();
-
         $city = $this->table('city')
             ->addColumn('name', 'string', array('limit' => 50))
             ->addColumn('id_state', 'integer')
             ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
             ->addForeignKey('id_state', $state, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $city->save();
-
         $district = $this->table('district')
             ->addColumn('name', 'string', array('limit' => 50))
             ->addColumn('id_city', 'integer')
             ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'))
             ->addForeignKey('id_city', $city, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $district->save();
-
         $pin = $this->table('pin')
             ->addColumn('id_country', 'integer')
             ->addColumn('id_state', 'integer')
@@ -71,11 +62,9 @@ class First extends AbstractMigration
             ->addForeignKey('id_city', $city, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'))
             ->addForeignKey('id_district', $district, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $pin->save();
-
         $phone_type = $this->table('phone_type')
             ->addColumn('type', 'string', array('limit' => 15));
         $phone_type->save();
-
         $phone = $this->table('phone_pin')
             ->addColumn('id_phone_type', 'integer')
             ->addColumn('number', 'string', array('limit' => 15))
@@ -85,12 +74,10 @@ class First extends AbstractMigration
             ->addForeignKey('id_phone_type', $phone_type, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'))
             ->addForeignKey('id_pin', $pin, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $phone->save();
-
         $user_account = $this->table('user_account')
             ->addColumn('name', 'string', array('limit' => 150))
             ->addColumn('created', 'datetime', array('default' => 'CURRENT_TIMESTAMP'));
         $user_account->save();
-
         $phone_user_account = $this->table('phone_user_account')
             ->addColumn('id_phone_type', 'integer', array('default' => 2))
             ->addColumn('number', 'string', array('limit' => 15))
@@ -100,11 +87,9 @@ class First extends AbstractMigration
             ->addForeignKey('id_phone_type', $phone_type, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'))
             ->addForeignKey('id_user_account', $user_account, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $phone_user_account->save();
-
         $email_type = $this->table('email_type')
             ->addColumn('type', 'string', array('limit' => 15));
         $email_type->save();
-
         $email_user_account = $this->table('email_user_account')
             ->addColumn('id_email_type', 'integer', array('default' => 2))
             ->addColumn('email', 'string', array('limit' => 100))
@@ -114,11 +99,9 @@ class First extends AbstractMigration
             ->addForeignKey('id_email_type', $email_type, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'))
             ->addForeignKey('id_user_account', $user_account, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $email_user_account->save();
-
         $address_type = $this->table('address_type')
             ->addColumn('type', 'string', array('limit' => 15));
         $address_type->save();
-
         $address_user_account = $this->table('address_user_account')
             ->addColumn('id_country', 'integer')
             ->addColumn('id_state', 'integer')
@@ -136,7 +119,6 @@ class First extends AbstractMigration
             ->addForeignKey('id_city', $city, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'))
             ->addForeignKey('id_district', $district, 'id', array('delete' => 'CASCADE', 'update' => 'CASCADE'));
         $address_user_account->save();
-
         $this->execute("
 /* tabela de importação
 CREATE TABLE importacao (
@@ -172,10 +154,8 @@ CREATE TABLE importacao (
   PRIMARY KEY (id)
 );
 */
-
 INSERT INTO country (name) VALUES('Brasil');
 SELECT setval('country_id_seq', (SELECT MAX(id) FROM country));
-
 /*
 INSERT INTO state(name, id_country)
 SELECT TRIM(i.estado), 1
@@ -185,7 +165,6 @@ SELECT TRIM(i.estado), 1
  GROUP BY i.estado
  ORDER BY i.estado;
 */
-
 INSERT INTO state (id,name,id_country) VALUES (1,'Acre',1);
 INSERT INTO state (id,name,id_country) VALUES (2,'Alagoas',1);
 INSERT INTO state (id,name,id_country) VALUES (3,'Amapá',1);
@@ -213,7 +192,6 @@ INSERT INTO state (id,name,id_country) VALUES (24,'Santa Catarina',1);
 INSERT INTO state (id,name,id_country) VALUES (25,'São Paulo',1);
 INSERT INTO state (id,name,id_country) VALUES (26,'Sergipe',1);
 SELECT setval('state_id_seq', (SELECT MAX(id) FROM state));
-
 /*
 INSERT INTO city(name, id_state)
 SELECT TRIM(i.municipio), s.id
@@ -224,7 +202,6 @@ SELECT TRIM(i.municipio), s.id
  GROUP BY i.municipio, s.id
  ORDER BY s.id, i.municipio;
 */
-
 INSERT INTO city (id,name,id_state) VALUES (1,'Rio Branco',1);
 INSERT INTO city (id,name,id_state) VALUES (2,'Maceió',2);
 INSERT INTO city (id,name,id_state) VALUES (3,'Macapá',3);
@@ -310,7 +287,6 @@ INSERT INTO city (id,name,id_state) VALUES (82,'Penedo',19);
 INSERT INTO city (id,name,id_state) VALUES (83,'Rio das Ostras',19);
 INSERT INTO city (id,name,id_state) VALUES (84,'Vassouras',19);
 SELECT setval('city_id_seq', (SELECT MAX(id) FROM city));
-
 /*
 INSERT INTO district(name, id_city)
 SELECT TRIM(i.bairro), c.id
@@ -321,7 +297,6 @@ SELECT TRIM(i.bairro), c.id
  GROUP BY i.bairro, c.id
  ORDER BY c.id, i.bairro;
 */
-
 INSERT INTO district (id,name,id_city) VALUES (1,'Bosque',1);
 INSERT INTO district (id,name,id_city) VALUES (2,'Cruz das Almas',2);
 INSERT INTO district (id,name,id_city) VALUES (3,'Jatiúca',2);
@@ -596,7 +571,6 @@ INSERT INTO district (id,name,id_city) VALUES (271,'Costa Azul',83);
 SELECT setval('district_id_seq', (SELECT MAX(id) FROM district));
 ");
     }
-
     /**
      * Migrate Down.
      */
@@ -615,7 +589,5 @@ SELECT setval('district_id_seq', (SELECT MAX(id) FROM district));
         $this->dropTable('state');
         $this->dropTable('country');
         $this->dropTable('user_account');
-        $schema = getenv('PHINX_SCHEMA');
-        $this->query('DROP SCHEMA IF EXISTS '.$schema);
     }
 }

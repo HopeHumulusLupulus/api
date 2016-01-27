@@ -23,3 +23,4 @@ if($abort) {
     }, Application::EARLY_EVENT);
 }
 
+$app['http_cache']->run();

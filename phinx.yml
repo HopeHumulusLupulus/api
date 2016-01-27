@@ -25,10 +25,10 @@ environments:
         charset: %%PHINX_CHARSET%%
 
     testing:
-        adapter: mysql
-        host: localhost
-        name: testing_db
-        user: root
-        pass: ''
-        port: 3306
-        charset: utf8
+        adapter: pgsql
+        host: 127.0.0.1
+        name: api_testing
+        user: postgres
+        pass: 
+        port: 5432
+        schema: public

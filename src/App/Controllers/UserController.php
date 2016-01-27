@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\PinsService;
 use App\Services\UserService;
+use Symfony\Component\HttpFoundation\Symfony\Component\HttpFoundation;
 
 
 class UserController

@@ -1,0 +1,11 @@
+default:
+    formatters:
+        progress: ~
+    extensions:
+        Behat\WebApiExtension:
+            base_url: http://localhost:8000/v2/
+
+    suites:
+        default:
+            extensions:
+                Behat\WebApiExtension: ~
