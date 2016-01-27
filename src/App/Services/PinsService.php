@@ -92,7 +92,7 @@ class PinsService extends BaseService
                     ->setMaxResults(20)
                     ->orderBy('p.id');
             }
-        } else {
+        } else if(!array_key_exists('id', $filters)) {
             $queryBuilder
                 ->andWhere('p.enabled IS NOT NULL');
         }
