@@ -99,10 +99,8 @@ class UserController
                 } else {
                     $telegram = new \Telegram\Bot\Api($this->app['telegram_bot.token']);
                     $telegram->sendMessage([
-                        'params' => [
-                            'chat_id' => $this->app['telegram_bot.contact_chat'],
-                            'text' => print_r($data, true),
-                        ]
+                        'chat_id' => $this->app['telegram_bot.contact_chat'],
+                        'text' => print_r($data, true),
                     ]);
                 }
                 $message = \Swift_Message::newInstance()
@@ -125,10 +123,8 @@ class UserController
                 } else {
                     $telegram = new \Telegram\Bot\Api($this->app['telegram_bot.token']);
                     $telegram->sendMessage([
-                        'params' => [
-                            'chat_id' => $this->app['telegram_bot.contact_chat'],
-                            'text' => print_r($e->getMessage(), true),
-                        ]
+                        'chat_id' => $this->app['telegram_bot.contact_chat'],
+                        'text' => print_r($e->getMessage(), true),
                     ]);
                 }
             }
