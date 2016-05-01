@@ -86,15 +86,25 @@ class UserController
             $data = json_decode($request->getContent(), true)
         ))) {
             try {
-                pclose(popen('php '.$this->app['cli.sendmessage'].
-                    base64_encode(serialize([
+                if(function_exists('popen') && function_exists('pclose')) {
+                    pclose(popen('php '.$this->app['cli.sendmessage'].
+                        base64_encode(serialize([
+                            'params' => [
+                                'chat_id' => $this->app['telegram_bot.contact_chat'],
+                                'text' => print_r($data, true)
+                            ],
+                            'token' => $this->app['telegram_bot.token']
+                        ])).' &', 'r'
+                    ));
+                } else {
+                    $telegram = new Api($this->app['telegram_bot.token']);
+                    $telegram->sendMessage([
                         'params' => [
                             'chat_id' => $this->app['telegram_bot.contact_chat'],
-                            'text' => print_r($data, true)
-                        ],
-                        'token' => $this->app['telegram_bot.token']
-                    ])).' &', 'r'
-                ));
+                            'text' => print_r($data, true),
+                        ]
+                    ]);
+                }
                 $message = \Swift_Message::newInstance()
                     ->setSubject('Contato')
                     ->setFrom(array($data['email'] => $data['name']))
@@ -102,15 +112,25 @@ class UserController
                     ->setBody($data['message']);
                 $result = $this->app['mailer']->send($message);
             } catch (\Exception $e) {
-                pclose(popen('php '.$this->app['cli.sendmessage'].
-                    base64_encode(serialize([
+                if(function_exists('popen') && function_exists('pclose')) {
+                    pclose(popen('php '.$this->app['cli.sendmessage'].
+                        base64_encode(serialize([
+                            'params' => [
+                                'chat_id' => $this->app['telegram_bot.contact_chat'],
+                                'text' => print_r($data, true)
+                            ],
+                            'token' => $this->app['telegram_bot.token']
+                        ])).' &', 'r'
+                    ));
+                } else {
+                    $telegram = new Api($this->app['telegram_bot.token']);
+                    $telegram->sendMessage([
                         'params' => [
                             'chat_id' => $this->app['telegram_bot.contact_chat'],
-                            'text' => print_r($e->getMessage(), true)
-                        ],
-                        'token' => $this->app['telegram_bot.token']
-                    ])).' &', 'r'
-                ));
+                            'text' => print_r($e->getMessage(), true),
+                        ]
+                    ]);
+                }
             }
             return new JsonResponse(array("protocol" => $response));
         } else {
