@@ -132,7 +132,7 @@ class UserController extends GlobalController
                         ])).' &', 'r'
                     ));
                 } else {
-                    $telegram = new Api($this->app['telegram_bot.token']);
+                    $telegram = new \Telegram\Bot\Api($this->app['telegram_bot.token']);
                     $telegram->sendMessage([
                         'params' => [
                             'chat_id' => $this->app['telegram_bot.contact_chat'],
@@ -158,7 +158,7 @@ class UserController extends GlobalController
                         ])).' &', 'r'
                     ));
                 } else {
-                    $telegram = new Api($this->app['telegram_bot.token']);
+                    $telegram = new \Telegram\Bot\Api($this->app['telegram_bot.token']);
                     $telegram->sendMessage([
                         'params' => [
                             'chat_id' => $this->app['telegram_bot.contact_chat'],
