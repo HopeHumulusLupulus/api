@@ -47,13 +47,11 @@
 	"scripts": {
         "post-install-cmd": [
             "ln -sf $(pwd)/vendor ../",
-            "ln -sf $(pwd)/web ../",
-            "ln -sf $(pwd)/.htaccess ../"
+            "ln -sf $(pwd)/web ../"
         ],
         "post-update-cmd": [
             "ln -sf $(pwd)/vendor ../",
-            "ln -sf $(pwd)/web ../",
-            "ln -sf $(pwd)/.htaccess ../"
+            "ln -sf $(pwd)/web ../"
         ]
 	}
 }
