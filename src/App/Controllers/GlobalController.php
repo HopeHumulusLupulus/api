@@ -7,11 +7,10 @@ use Symfony\Component\HttpFoundation\Request;
 class GlobalController {
     protected function getUser(Request $request)
     {
-        $headers = getallheaders();
-        if(!array_key_exists('Authorization', $headers)) {
+        $authorizationHeader = $request->headers->get('Authorization');
+        if(!$authorizationHeader) {
             throw new \Exception('UNDEFINED_ACCESS_TOKEN');
         }
-        $authorizationHeader = $headers['Authorization'];
         if(preg_match('/^Token (?P<token>.*)$/', $authorizationHeader, $matches)) {
             $user = $this->app['user.service']->validateAccessToken($matches['token']);
         } else {

@@ -86,7 +86,7 @@ class PinsService extends BaseService
             if($stmt = $countQueryBuilder->execute()) {
                 $this->setTotalRows((int)$stmt->fetchColumn());
 
-                $select[] = 'p.enabled';
+                $select[] = 'CASE WHEN p.enabled IS NOT NULL THEN 1 ELSE 0 END AS enabled';
                 $queryBuilder
                     ->setFirstResult($page)
                     ->setMaxResults(20)
