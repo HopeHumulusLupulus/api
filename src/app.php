@@ -14,7 +14,7 @@ use App\Handler\MonologTelegramHandler;
 
 date_default_timezone_set('America/Sao_Paulo');
 
-$env = getenv('APP_ENV') ?: 'prod';
+$env = getenv('APP_ENV') ?: getenv('REDIRECT_APP_ENV') ?: 'prod';
 
 require ROOT_PATH . '/resources/config/'.$env.'.php';
 
