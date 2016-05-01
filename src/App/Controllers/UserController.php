@@ -121,7 +121,7 @@ class UserController extends GlobalController
             $data = json_decode($request->getContent(), true)
         ))) {
             try {
-                if(function_exists('popen') && function_exists('pclose')) {
+                if(function_exists('popen') && function_exists('pclose') && false) {
                     pclose(popen('php '.$this->app['cli.sendmessage'].
                         base64_encode(serialize([
                             'params' => [
@@ -134,10 +134,8 @@ class UserController extends GlobalController
                 } else {
                     $telegram = new \Telegram\Bot\Api($this->app['telegram_bot.token']);
                     $telegram->sendMessage([
-                        'params' => [
-                            'chat_id' => $this->app['telegram_bot.contact_chat'],
-                            'text' => print_r($data, true),
-                        ]
+                        'chat_id' => $this->app['telegram_bot.contact_chat'],
+                        'text' => print_r($data, true),
                     ]);
                 }
                 $message = \Swift_Message::newInstance()
@@ -160,10 +158,8 @@ class UserController extends GlobalController
                 } else {
                     $telegram = new \Telegram\Bot\Api($this->app['telegram_bot.token']);
                     $telegram->sendMessage([
-                        'params' => [
-                            'chat_id' => $this->app['telegram_bot.contact_chat'],
-                            'text' => print_r($e->getMessage(), true),
-                        ]
+                        'chat_id' => $this->app['telegram_bot.contact_chat'],
+                        'text' => print_r($e->getMessage(), true),
                     ]);
                 }
             }
